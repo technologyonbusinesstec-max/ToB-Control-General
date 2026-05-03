@@ -1,0 +1,217 @@
+/* ============================================================
+   ToB Operations Center — modules-shared.css
+   Shared layout for all module pages
+   ============================================================ */
+
+/* ── Module page layout ──────────────────────────────────── */
+.module-page {
+  padding-top: calc(var(--kpi-height) + 24px);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── Top nav bar (back + title + actions) ────────────────── */
+.module-topbar {
+  position: fixed;
+  top: var(--kpi-height);
+  left: 0; right: 0;
+  height: 60px;
+  background: rgba(10,13,20,0.92);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 0 28px;
+  z-index: 900;
+}
+
+.btn-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 14px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text-secondary);
+  font-size: 13px;
+  font-weight: 500;
+  transition: var(--transition);
+  text-decoration: none;
+  flex-shrink: 0;
+}
+
+.btn-back:hover {
+  background: rgba(255,255,255,0.09);
+  color: var(--text-primary);
+  border-color: var(--border-accent);
+}
+
+.module-topbar__title {
+  font-family: 'Outfit', sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text-primary);
+  flex: 1;
+}
+
+.module-topbar__actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+/* ── Open External Button ────────────────────────────────── */
+.btn-external {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 18px;
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  font-weight: 600;
+  transition: var(--transition);
+  text-decoration: none;
+  cursor: pointer;
+  border: none;
+}
+
+.btn-external.primary {
+  background: var(--grad-blue);
+  color: #fff;
+  box-shadow: 0 4px 16px rgba(99,179,237,0.3);
+}
+
+.btn-external.primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 24px rgba(99,179,237,0.45);
+}
+
+.btn-external.secondary {
+  background: rgba(255,255,255,0.06);
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
+}
+
+.btn-external.secondary:hover {
+  background: rgba(255,255,255,0.1);
+  color: var(--text-primary);
+}
+
+/* ── iframe wrapper ──────────────────────────────────────── */
+.iframe-wrapper {
+  flex: 1;
+  padding-top: calc(var(--kpi-height) + 60px);
+  display: flex;
+  flex-direction: column;
+}
+
+.module-iframe {
+  flex: 1;
+  width: 100%;
+  min-height: calc(100vh - var(--kpi-height) - 60px);
+  border: none;
+  display: block;
+}
+
+/* ── Module content area (non-iframe modules) ────────────── */
+.module-content {
+  padding-top: calc(var(--kpi-height) + 60px + 40px);
+  padding-inline: 40px;
+  padding-bottom: 60px;
+  flex: 1;
+}
+
+/* ── Section title inside module ─────────────────────────── */
+.module-section-title {
+  font-family: 'Outfit', sans-serif;
+  font-size: 28px;
+  font-weight: 800;
+  margin-bottom: 10px;
+}
+
+.module-section-subtitle {
+  font-size: 15px;
+  color: var(--text-secondary);
+  margin-bottom: 40px;
+  max-width: 560px;
+  line-height: 1.7;
+}
+
+/* ── Action Cards (for module landing pages) ─────────────── */
+.action-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 18px;
+}
+
+.action-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xl);
+  padding: 30px 26px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  transition: var(--transition);
+  animation: fadeUp 0.4s ease forwards;
+  animation-fill-mode: both;
+}
+
+.action-card:nth-child(1) { animation-delay: 0.05s; }
+.action-card:nth-child(2) { animation-delay: 0.10s; }
+.action-card:nth-child(3) { animation-delay: 0.15s; }
+
+.action-card:hover {
+  transform: translateY(-4px);
+  border-color: var(--card-accent, var(--border-accent));
+  background: var(--bg-card-hover);
+  box-shadow: var(--shadow-card);
+}
+
+.action-card__icon {
+  font-size: 36px;
+  line-height: 1;
+}
+
+.action-card__title {
+  font-family: 'Outfit', sans-serif;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.action-card__desc {
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.65;
+  flex: 1;
+}
+
+.action-card__btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 11px 20px;
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  font-weight: 600;
+  transition: var(--transition);
+  text-decoration: none;
+  width: 100%;
+  border: none;
+  cursor: pointer;
+}
+
+/* ── Responsive ──────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .module-topbar { padding: 0 16px; gap: 10px; }
+  .module-content { padding-inline: 16px; }
+  .module-topbar__title { font-size: 14px; }
+  .btn-external { padding: 7px 12px; font-size: 12px; }
+}

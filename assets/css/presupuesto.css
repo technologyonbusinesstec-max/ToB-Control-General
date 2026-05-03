@@ -1,0 +1,33 @@
+/* presupuesto.css */
+
+.iframe-fallback {
+  display: none; /* shown by JS if iframe errors */
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 14px;
+  padding: 60px 20px;
+  background: var(--bg-card);
+  border-bottom: 1px solid var(--border);
+}
+
+.fallback-icon { font-size: 48px; }
+
+.iframe-fallback h2 {
+  font-family: 'Outfit', sans-serif;
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.iframe-fallback p {
+  font-size: 14px;
+  color: var(--text-secondary);
+  line-height: 1.7;
+}
+
+/* Loading shimmer on iframe */
+.module-iframe {
+  background: var(--bg-surface);
+}

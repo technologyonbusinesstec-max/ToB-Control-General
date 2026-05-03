@@ -1,0 +1,154 @@
+/* ingresos.css */
+
+/* ── Hero ─────────────────────────────────────────────────── */
+.ingresos-hero {
+  margin-bottom: 36px;
+  animation: fadeUp 0.4s ease forwards;
+}
+
+.ingresos-hero__badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 14px;
+  background: rgba(104,211,145,0.08);
+  border: 1px solid rgba(104,211,145,0.2);
+  border-radius: 99px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--accent-green);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: 18px;
+}
+
+.ingresos-hero__badge .dot {
+  width: 6px; height: 6px;
+  background: var(--accent-green);
+  border-radius: 50%;
+  box-shadow: 0 0 8px var(--accent-green);
+}
+
+.highlight-green {
+  background: linear-gradient(135deg, var(--accent-green), #76e4f7);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ── Steps Banner ─────────────────────────────────────────── */
+.steps-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 20px 26px;
+  background: rgba(99,179,237,0.06);
+  border: 1px solid rgba(99,179,237,0.2);
+  border-radius: var(--radius-lg);
+  animation: fadeUp 0.4s ease 0.1s forwards;
+  opacity: 0;
+  flex-wrap: wrap;
+}
+
+.steps-banner__left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex: 1;
+  min-width: 200px;
+}
+
+.steps-banner__icon { font-size: 32px; flex-shrink: 0; }
+
+.steps-banner__text {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.steps-banner__text strong {
+  font-family: 'Outfit', sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.steps-banner__text span {
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+/* ── Action Cards (ingresos specific) ───────────────────────*/
+.ingresos-cards {
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+}
+
+.action-card__tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: -4px;
+}
+
+.ing-tag {
+  padding: 3px 10px;
+  border-radius: 99px;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+}
+
+.ing-tag.green  { background: rgba(104,211,145,0.12); color: var(--accent-green); }
+.ing-tag.purple { background: rgba(183,148,244,0.12); color: var(--accent-purple); }
+
+/* Buttons */
+.btn-green {
+  background: linear-gradient(135deg, #276749 0%, #68d391 100%);
+  color: #fff;
+  box-shadow: 0 4px 16px rgba(104,211,145,0.25);
+  font-weight: 700;
+}
+
+.btn-green:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 24px rgba(104,211,145,0.4);
+}
+
+.btn-purple {
+  background: linear-gradient(135deg, #553c9a 0%, #b794f4 100%);
+  color: #fff;
+  box-shadow: 0 4px 16px rgba(183,148,244,0.25);
+  font-weight: 700;
+}
+
+.btn-purple:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 24px rgba(183,148,244,0.4);
+}
+
+/* ── Nota ─────────────────────────────────────────────────── */
+.ingresos-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 16px 20px;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  margin-top: 32px;
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.6;
+  animation: fadeUp 0.4s ease 0.3s forwards;
+  opacity: 0;
+}
+
+.ingresos-note span { font-size: 18px; flex-shrink: 0; margin-top: 1px; }
+
+/* ── Responsive ──────────────────────────────────────────── */
+@media (max-width: 640px) {
+  .steps-banner { flex-direction: column; align-items: flex-start; }
+  .steps-banner .btn-external { width: 100%; justify-content: center; }
+}
