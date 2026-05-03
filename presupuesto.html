@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Presupuesto general del ToB 2026 — visor del archivo oficial." />
+  <title>ToB · Presupuesto</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="assets/css/global.css" />
+  <link rel="stylesheet" href="assets/css/modules-shared.css" />
+  <link rel="stylesheet" href="assets/css/presupuesto.css" />
+</head>
+<body>
+
+  <!-- KPI Bar -->
+  <header class="kpi-bar">
+    <div class="kpi-bar__logo">
+      <a href="index.html" class="logo-badge" style="text-decoration:none;color:#fff;">ToB</a>
+      <span>Operations</span>
+    </div>
+    <div class="kpi-bar__indicators">
+      <div class="kpi-item"><span class="kpi-item__icon">💸</span><div class="kpi-item__info"><span class="kpi-item__label">Gastos Totales</span><span class="kpi-item__value red" id="kpi-gastos">₡0</span></div></div>
+      <div class="kpi-item"><span class="kpi-item__icon">💰</span><div class="kpi-item__info"><span class="kpi-item__label">Disponible</span><span class="kpi-item__value green" id="kpi-disponible">₡0</span></div></div>
+      <div class="kpi-item"><span class="kpi-item__icon">🤝</span><div class="kpi-item__info"><span class="kpi-item__label">Patrocinadores</span><span class="kpi-item__value blue" id="kpi-contactados">0 / 0</span></div></div>
+      <div class="kpi-item kpi-countdown"><span class="kpi-item__icon">⏳</span><div class="kpi-item__info"><span class="kpi-item__label">Para el Evento</span><span class="kpi-item__value gold" id="kpi-dias">— días</span></div></div>
+    </div>
+  </header>
+
+  <!-- Module Topbar -->
+  <nav class="module-topbar">
+    <a href="index.html" class="btn-back" id="btn-back">← Menú</a>
+    <span class="module-topbar__title">📊 Presupuesto ToB 2026</span>
+    <div class="module-topbar__actions">
+      <a
+        id="btn-open-sheets"
+        href="https://docs.google.com/spreadsheets/d/10qutSMURWYvXZCP4EFKkzsFcCA4_VZ9K/edit?usp=drive_link"
+        target="_blank"
+        rel="noopener"
+        class="btn-external primary"
+      >
+        ↗ Abrir en Google Sheets
+      </a>
+    </div>
+  </nav>
+
+  <!-- Iframe wrapper -->
+  <main class="iframe-wrapper">
+    <!-- Fallback banner shown if iframe is blocked -->
+    <div class="iframe-fallback" id="iframe-fallback">
+      <span class="fallback-icon">📊</span>
+      <h2>¿El archivo no carga?</h2>
+      <p>Google Sheets puede bloquear la vista embebida.<br>Hacé clic en el botón para abrirlo directamente.</p>
+      <a
+        href="https://docs.google.com/spreadsheets/d/10qutSMURWYvXZCP4EFKkzsFcCA4_VZ9K/edit?usp=drive_link"
+        target="_blank"
+        rel="noopener"
+        class="btn-external primary"
+        style="margin-top:16px;"
+      >
+        ↗ Abrir Presupuesto
+      </a>
+    </div>
+
+    <iframe
+      id="sheets-iframe"
+      class="module-iframe"
+      src="https://docs.google.com/spreadsheets/d/10qutSMURWYvXZCP4EFKkzsFcCA4_VZ9K/edit?embedded=true&rm=minimal"
+      allowfullscreen
+      title="Presupuesto ToB 2026"
+      loading="lazy"
+    ></iframe>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="assets/js/supabase-config.js"></script>
+  <script src="assets/js/auth.js"></script>
+  <script src="assets/js/global.js"></script>
+  <script src="assets/js/presupuesto.js"></script>
+</body>
+</html>

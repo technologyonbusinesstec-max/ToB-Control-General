@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Acceso al OneDrive del equipo ToB 2026." />
+  <title>ToB · OneDrive</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="assets/css/global.css" />
+  <link rel="stylesheet" href="assets/css/modules-shared.css" />
+  <link rel="stylesheet" href="assets/css/drive.css" />
+</head>
+<body>
+
+  <div class="bg-grid" aria-hidden="true"></div>
+
+  <!-- KPI Bar -->
+  <header class="kpi-bar">
+    <div class="kpi-bar__logo">
+      <a href="index.html" class="logo-badge" style="text-decoration:none;color:#fff;">ToB</a>
+      <span>Operations</span>
+    </div>
+    <div class="kpi-bar__indicators">
+      <div class="kpi-item"><span class="kpi-item__icon">💸</span><div class="kpi-item__info"><span class="kpi-item__label">Gastos Totales</span><span class="kpi-item__value red" id="kpi-gastos">₡0</span></div></div>
+      <div class="kpi-item"><span class="kpi-item__icon">💰</span><div class="kpi-item__info"><span class="kpi-item__label">Disponible</span><span class="kpi-item__value green" id="kpi-disponible">₡0</span></div></div>
+      <div class="kpi-item"><span class="kpi-item__icon">🤝</span><div class="kpi-item__info"><span class="kpi-item__label">Patrocinadores</span><span class="kpi-item__value blue" id="kpi-contactados">0 / 0</span></div></div>
+      <div class="kpi-item kpi-countdown"><span class="kpi-item__icon">⏳</span><div class="kpi-item__info"><span class="kpi-item__label">Para el Evento</span><span class="kpi-item__value gold" id="kpi-dias">— días</span></div></div>
+    </div>
+  </header>
+
+  <!-- Module Topbar -->
+  <nav class="module-topbar">
+    <a href="index.html" class="btn-back">← Menú</a>
+    <span class="module-topbar__title">📁 OneDrive — ToB</span>
+    <div class="module-topbar__actions">
+      <a
+        href="https://tecnube1-my.sharepoint.com/:f:/g/personal/tob_itcr_ac_cr/IgCvKSpN0DpsRZwrOxHtvLbBAaCCSfb7EWHMQp00Y4DMfMw?e=8pzfa4"
+        target="_blank"
+        rel="noopener"
+        class="btn-external primary"
+        id="btn-open-onedrive"
+      >
+        ↗ Abrir en OneDrive
+      </a>
+    </div>
+  </nav>
+
+  <!-- Main content -->
+  <main class="module-content drive-center">
+
+    <!-- OneDrive Icon + Card -->
+    <div class="drive-hero" id="drive-hero">
+      <div class="drive-logo-wrap" aria-hidden="true">
+        <!-- OneDrive SVG icon -->
+        <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" class="drive-logo" aria-label="OneDrive icon">
+          <path d="M18.5 30H38.5C41.5 30 44 27.5 44 24.5C44 21.7 41.9 19.4 39.2 19C38.9 14.5 35.1 11 30.5 11C28.2 11 26.1 11.9 24.5 13.3C23.2 11.5 21.1 10.5 18.8 10.5C14.7 10.5 11.3 13.6 11 17.6C8.1 18.4 6 21 6 24C6 27.3 8.7 30 12 30H18.5Z" fill="#0078D4"/>
+          <path d="M18.5 30H28.5C31.5 30 34 27.5 34 24.5C34 21.7 31.9 19.4 29.2 19L28 18.8L27.8 17.6C27.3 14.4 24.6 12 21.3 12C19.5 12 17.9 12.7 16.7 13.8C19.3 14.9 21.2 17.2 21.7 20H18.5C14.9 20 12 22.9 12 26.5C12 28.4 12.8 30 14 30.8L18.5 30Z" fill="#1C9AF5" opacity="0.8"/>
+        </svg>
+      </div>
+
+      <h1 class="drive-title">Archivos del Equipo</h1>
+      <p class="drive-subtitle">
+        Accedé a la carpeta compartida del ToB en <strong>Microsoft OneDrive</strong>.
+        Encontrarás todos los documentos, formularios, presentaciones y recursos del equipo.
+      </p>
+
+      <a
+        href="https://tecnube1-my.sharepoint.com/:f:/g/personal/tob_itcr_ac_cr/IgCvKSpN0DpsRZwrOxHtvLbBAaCCSfb7EWHMQp00Y4DMfMw?e=8pzfa4"
+        target="_blank"
+        rel="noopener"
+        class="drive-cta"
+        id="btn-onedrive-main"
+      >
+        <span>📁</span>
+        Abrir carpeta en OneDrive
+        <span class="cta-arrow">↗</span>
+      </a>
+
+      <p class="drive-hint">
+        Se abrirá en una nueva pestaña. Necesitás estar conectado con tu cuenta institucional del ITCR.
+      </p>
+    </div>
+
+    <!-- Quick access hints -->
+    <div class="drive-tips">
+      <div class="drive-tip">
+        <span>🔒</span>
+        <span>Acceso restringido al equipo ToB</span>
+      </div>
+      <div class="drive-tip">
+        <span>☁️</span>
+        <span>Almacenamiento en la nube ITCR</span>
+      </div>
+      <div class="drive-tip">
+        <span>🔄</span>
+        <span>Sincronización en tiempo real</span>
+      </div>
+    </div>
+
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="assets/js/supabase-config.js"></script>
+  <script src="assets/js/auth.js"></script>
+  <script src="assets/js/global.js"></script>
+  <script src="assets/js/drive.js"></script>
+</body>
+</html>

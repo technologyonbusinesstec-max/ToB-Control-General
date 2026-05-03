@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Centro de Operaciones del equipo ToB — gestión de gastos, ingresos y patrocinadores para el evento del 18 de agosto." />
+  <title>ToB · Centro de Operaciones</title>
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="assets/css/global.css" />
+  <link rel="stylesheet" href="assets/css/index.css" />
+</head>
+<body>
+
+  <!-- Decorative grid background -->
+  <div class="bg-grid" aria-hidden="true"></div>
+
+  <!-- ═══════════════════════════════════════════════════════
+       KPI BAR — Fixed top panel (shared across all pages)
+  ════════════════════════════════════════════════════════════ -->
+  <header class="kpi-bar" role="banner">
+
+    <!-- Logo -->
+    <div class="kpi-bar__logo">
+      <div class="logo-badge" aria-label="ToB logo">ToB</div>
+      <span>Operations</span>
+    </div>
+
+    <!-- KPI Indicators -->
+    <div class="kpi-bar__indicators" role="region" aria-label="Indicadores clave">
+
+      <div class="kpi-item" id="kpi-gastos-card" title="Total de gastos registrados">
+        <span class="kpi-item__icon" aria-hidden="true">💸</span>
+        <div class="kpi-item__info">
+          <span class="kpi-item__label">Gastos Totales</span>
+          <span class="kpi-item__value red" id="kpi-gastos">₡0</span>
+        </div>
+      </div>
+
+      <div class="kpi-item" id="kpi-disponible-card" title="Dinero disponible (ingresos − gastos)">
+        <span class="kpi-item__icon" aria-hidden="true">💰</span>
+        <div class="kpi-item__info">
+          <span class="kpi-item__label">Disponible</span>
+          <span class="kpi-item__value green" id="kpi-disponible">₡0</span>
+        </div>
+      </div>
+
+      <div class="kpi-item" id="kpi-patros-card" title="Patrocinadores contactados vs total">
+        <span class="kpi-item__icon" aria-hidden="true">🤝</span>
+        <div class="kpi-item__info">
+          <span class="kpi-item__label">Patrocinadores</span>
+          <span class="kpi-item__value blue" id="kpi-contactados">0 / 0</span>
+        </div>
+      </div>
+
+      <div class="kpi-item kpi-countdown" id="kpi-event-card" title="Días restantes para el evento — 18 de agosto 2026">
+        <span class="kpi-item__icon" aria-hidden="true">⏳</span>
+        <div class="kpi-item__info">
+          <span class="kpi-item__label">Para el Evento</span>
+          <span class="kpi-item__value gold" id="kpi-dias">— días</span>
+        </div>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- ═══════════════════════════════════════════════════════
+       MAIN CONTENT
+  ════════════════════════════════════════════════════════════ -->
+  <main class="page-wrapper">
+
+    <!-- Hero -->
+    <section class="hero" aria-labelledby="hero-title">
+      <div class="hero__eyebrow">
+        <span class="dot" aria-hidden="true"></span>
+        Centro de Operaciones — ToB 2026
+      </div>
+      <h1 class="hero__title" id="hero-title">Coordinación<br/>en un solo lugar</h1>
+      <p class="hero__subtitle">
+        Plataforma centralizada para el equipo de coordinadores.
+        Gestión de presupuesto, gastos, ingresos y patrocinadores
+        para el evento del <strong>18 de agosto de 2026</strong>.
+      </p>
+    </section>
+
+    <!-- Section label -->
+    <div class="section-header" aria-hidden="true">
+      <div class="section-header__line"></div>
+      <span class="section-header__title">Módulos del sistema</span>
+      <div class="section-header__line"></div>
+    </div>
+
+    <!-- ── Module Cards Grid ── -->
+    <section class="modules-grid" aria-label="Módulos disponibles">
+
+      <!-- 1. Presupuesto -->
+      <article
+        class="module-card"
+        data-color="blue"
+        id="card-presupuesto"
+        role="button"
+        tabindex="0"
+        aria-label="Abrir módulo de presupuesto"
+        onclick="location.href='presupuesto.html'"
+        onkeydown="if(event.key==='Enter' || event.key===' ') location.href='presupuesto.html'"
+      >
+        <div class="card-icon" aria-hidden="true">📊</div>
+        <div class="card-content">
+          <span class="card-tag">Finanzas</span>
+          <h2 class="card-title">Presupuesto</h2>
+          <p class="card-desc">
+            Visualizá el presupuesto general del ToB directamente desde el archivo oficial.
+          </p>
+        </div>
+        <div class="card-arrow" aria-hidden="true">→</div>
+      </article>
+
+      <!-- 2. Gastos -->
+      <article
+        class="module-card"
+        data-color="red"
+        id="card-gastos"
+        role="button"
+        tabindex="0"
+        aria-label="Abrir módulo de control de gastos"
+        onclick="location.href='gastos.html'"
+        onkeydown="if(event.key==='Enter' || event.key===' ') location.href='gastos.html'"
+      >
+        <div class="card-icon" aria-hidden="true">💸</div>
+        <div class="card-content">
+          <span class="card-tag">Egresos</span>
+          <h2 class="card-title">Control de Gastos</h2>
+          <p class="card-desc">
+            Registrá y consultá todos los gastos del equipo organizados por categoría y coordinador.
+          </p>
+        </div>
+        <div class="card-arrow" aria-hidden="true">→</div>
+      </article>
+
+      <!-- 3. Ingresos -->
+      <article
+        class="module-card"
+        data-color="green"
+        id="card-ingresos"
+        role="button"
+        tabindex="0"
+        aria-label="Abrir módulo de control de ingresos"
+        onclick="location.href='ingresos.html'"
+        onkeydown="if(event.key==='Enter' || event.key===' ') location.href='ingresos.html'"
+      >
+        <div class="card-icon" aria-hidden="true">💰</div>
+        <div class="card-content">
+          <span class="card-tag">Ingresos</span>
+          <h2 class="card-title">Control de Ingresos</h2>
+          <p class="card-desc">
+            Registrá fuentes de ingresos: cuotas, patrocinios, preventas y más.
+          </p>
+        </div>
+        <div class="card-arrow" aria-hidden="true">→</div>
+      </article>
+
+      <!-- 4. Patrocinadores -->
+      <article
+        class="module-card"
+        data-color="gold"
+        id="card-patrocinadores"
+        role="button"
+        tabindex="0"
+        aria-label="Abrir módulo de patrocinadores"
+        onclick="location.href='patrocinadores.html'"
+        onkeydown="if(event.key==='Enter' || event.key===' ') location.href='patrocinadores.html'"
+      >
+        <div class="card-icon" aria-hidden="true">🤝</div>
+        <div class="card-content">
+          <span class="card-tag">Patrocinadores</span>
+          <h2 class="card-title">Patrocinadores</h2>
+          <p class="card-desc">
+            Gestioná patrocinadores, importá desde CSV y llevá control de contactados vs pendientes.
+          </p>
+        </div>
+        <div class="card-arrow" aria-hidden="true">→</div>
+      </article>
+
+      <!-- 5. Google Drive -->
+      <article
+        class="module-card"
+        data-color="cyan"
+        id="card-drive"
+        role="button"
+        tabindex="0"
+        aria-label="Abrir módulo de OneDrive"
+        onclick="location.href='drive.html'"
+        onkeydown="if(event.key==='Enter' || event.key===' ') location.href='drive.html'"
+      >
+        <div class="card-icon" aria-hidden="true">☁️</div>
+        <div class="card-content">
+          <span class="card-tag">Archivos</span>
+          <h2 class="card-title">OneDrive</h2>
+          <p class="card-desc">
+            Acceso directo a los archivos y documentos del equipo en OneDrive del ITCR.
+          </p>
+        </div>
+        <div class="card-arrow" aria-hidden="true">→</div>
+      </article>
+
+      <!-- 6. Propuesta / Doc patrocinadores -->
+      <article
+        class="module-card"
+        data-color="purple"
+        id="card-propuesta"
+        role="button"
+        tabindex="0"
+        aria-label="Abrir módulo de propuesta para patrocinadores"
+        onclick="location.href='propuesta.html'"
+        onkeydown="if(event.key==='Enter' || event.key===' ') location.href='propuesta.html'"
+      >
+        <div class="card-icon" aria-hidden="true">📄</div>
+        <div class="card-content">
+          <span class="card-tag">Documentos</span>
+          <h2 class="card-title">Propuesta</h2>
+          <p class="card-desc">
+            Accedé al documento de propuesta oficial para enviar a patrocinadores potenciales.
+          </p>
+        </div>
+        <div class="card-arrow" aria-hidden="true">→</div>
+      </article>
+
+      <!-- 7. Conferencistas -->
+      <article
+        class="module-card"
+        data-color="orange"
+        id="card-conferencistas"
+        role="button"
+        tabindex="0"
+        aria-label="Abrir módulo de conferencistas"
+        onclick="location.href='conferencistas.html'"
+        onkeydown="if(event.key==='Enter' || event.key===' ') location.href='conferencistas.html'"
+      >
+        <div class="card-icon" aria-hidden="true">🎤</div>
+        <div class="card-content">
+          <span class="card-tag">Speakers</span>
+          <h2 class="card-title">Conferencistas</h2>
+          <p class="card-desc">
+            Gestioná los postulantes a conferencistas, confirmá su participación y revisá sus currículums.
+          </p>
+        </div>
+        <div class="card-arrow" aria-hidden="true">→</div>
+      </article>
+
+    </section>
+
+    <!-- Status bar -->
+    <footer class="status-bar" role="contentinfo">
+      <div class="status-item">
+        <span class="status-dot green" aria-hidden="true"></span>
+        Sistema activo
+      </div>
+      <div class="status-item">
+        <span class="status-dot grey" aria-hidden="true"></span>
+        Datos guardados localmente
+      </div>
+      <div class="status-item">
+        <span class="status-dot grey" aria-hidden="true"></span>
+        Equipo: 8 coordinadores
+      </div>
+      <div class="status-item" id="footer-date" aria-live="polite">
+        <!-- Populated by JS -->
+      </div>
+    </footer>
+
+  </main>
+
+  <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="assets/js/supabase-config.js"></script>
+  <script src="assets/js/auth.js"></script>
+  <script src="assets/js/global.js"></script>
+  <script src="assets/js/index.js"></script>
+  <script>
+    // Inline: footer date
+    document.getElementById('footer-date').textContent =
+      new Date().toLocaleDateString('es-CR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+  </script>
+
+</body>
+</html>

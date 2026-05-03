@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Acceso a la propuesta y materiales para patrocinadores del ToB 2026." />
+  <title>ToB · Propuesta para Patrocinadores</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="assets/css/global.css" />
+  <link rel="stylesheet" href="assets/css/modules-shared.css" />
+  <link rel="stylesheet" href="assets/css/propuesta.css" />
+</head>
+<body>
+
+  <div class="bg-grid" aria-hidden="true"></div>
+
+  <!-- KPI Bar -->
+  <header class="kpi-bar">
+    <div class="kpi-bar__logo">
+      <a href="index.html" class="logo-badge" style="text-decoration:none;color:#fff;">ToB</a>
+      <span>Operations</span>
+    </div>
+    <div class="kpi-bar__indicators">
+      <div class="kpi-item"><span class="kpi-item__icon">💸</span><div class="kpi-item__info"><span class="kpi-item__label">Gastos Totales</span><span class="kpi-item__value red" id="kpi-gastos">₡0</span></div></div>
+      <div class="kpi-item"><span class="kpi-item__icon">💰</span><div class="kpi-item__info"><span class="kpi-item__label">Disponible</span><span class="kpi-item__value green" id="kpi-disponible">₡0</span></div></div>
+      <div class="kpi-item"><span class="kpi-item__icon">🤝</span><div class="kpi-item__info"><span class="kpi-item__label">Patrocinadores</span><span class="kpi-item__value blue" id="kpi-contactados">0 / 0</span></div></div>
+      <div class="kpi-item kpi-countdown"><span class="kpi-item__icon">⏳</span><div class="kpi-item__info"><span class="kpi-item__label">Para el Evento</span><span class="kpi-item__value gold" id="kpi-dias">— días</span></div></div>
+    </div>
+  </header>
+
+  <!-- Module Topbar -->
+  <nav class="module-topbar">
+    <a href="index.html" class="btn-back">← Menú</a>
+    <span class="module-topbar__title">📄 Propuesta para Patrocinadores</span>
+    <div class="module-topbar__actions">
+      <button class="btn-external secondary" id="btn-copy-link" title="Copiar enlace de la carpeta">
+        📋 Copiar enlace
+      </button>
+      <a
+        href="https://drive.google.com/drive/folders/1K1N25D7S-QR3xK8AlRBODAZryIi30msm?usp=sharing"
+        target="_blank"
+        rel="noopener"
+        class="btn-external primary"
+        id="btn-open-folder"
+      >
+        ↗ Abrir en Drive
+      </a>
+    </div>
+  </nav>
+
+  <!-- Main content -->
+  <main class="module-content propuesta-center">
+
+    <div class="propuesta-hero">
+      <!-- Folder Icon animated -->
+      <div class="propuesta-folder" aria-hidden="true">
+        <div class="folder-icon">
+          <div class="folder-tab"></div>
+          <div class="folder-body">
+            <span>📄</span>
+          </div>
+        </div>
+      </div>
+
+      <h1 class="propuesta-title">Materiales para<br/><span class="highlight-purple">Patrocinadores</span></h1>
+      <p class="propuesta-subtitle">
+        Carpeta compartida con todos los documentos y materiales que el equipo ToB
+        utiliza para presentar propuestas a patrocinadores potenciales.
+      </p>
+
+      <div class="propuesta-actions">
+        <a
+          href="https://drive.google.com/drive/folders/1K1N25D7S-QR3xK8AlRBODAZryIi30msm?usp=sharing"
+          target="_blank"
+          rel="noopener"
+          class="propuesta-cta"
+          id="btn-drive-cta"
+        >
+          <span>📁</span>
+          Abrir carpeta en Google Drive
+          <span class="cta-arrow">↗</span>
+        </a>
+
+        <button class="propuesta-copy" id="btn-copy-2" title="Copiar enlace de la carpeta al portapapeles">
+          📋 Copiar enlace
+        </button>
+      </div>
+
+      <div class="propuesta-hint" id="copy-toast">
+        ✅ ¡Enlace copiado al portapapeles!
+      </div>
+    </div>
+
+    <!-- Info cards -->
+    <div class="propuesta-info-grid">
+      <div class="info-card">
+        <span class="info-card__icon">📊</span>
+        <div>
+          <strong>Presentación oficial</strong>
+          <span>Deck de patrocinio del ToB 2026</span>
+        </div>
+      </div>
+      <div class="info-card">
+        <span class="info-card__icon">📋</span>
+        <div>
+          <strong>Carta de beneficios</strong>
+          <span>Niveles y beneficios por nivel de patrocinio</span>
+        </div>
+      </div>
+      <div class="info-card">
+        <span class="info-card__icon">🤝</span>
+        <div>
+          <strong>Contrato modelo</strong>
+          <span>Plantilla de acuerdo de patrocinio</span>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="assets/js/supabase-config.js"></script>
+  <script src="assets/js/auth.js"></script>
+  <script src="assets/js/global.js"></script>
+  <script src="assets/js/propuesta.js"></script>
+</body>
+</html>

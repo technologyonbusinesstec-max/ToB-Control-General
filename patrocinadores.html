@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Patrocinadores · ToB Operations</title>
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+
+  <!-- Supabase -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  
+  <!-- PapaParse for CSV -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="assets/css/global.css" />
+  <link rel="stylesheet" href="assets/css/modules-shared.css" />
+  <link rel="stylesheet" href="assets/css/patrocinadores.css" />
+</head>
+<body>
+
+  <!-- Decorative grid -->
+  <div class="bg-grid" aria-hidden="true"></div>
+
+  <!-- Shared KPI Bar -->
+  <header class="kpi-bar" role="banner" aria-label="Barra de indicadores">
+    <div class="kpi-bar__logo">
+      <div class="logo-badge" onclick="location.href='index.html'" style="cursor:pointer" title="Volver al Hub">ToB</div>
+      <span>Operations</span>
+    </div>
+    
+    <div class="kpi-bar__indicators" role="region">
+      <div class="kpi-item" title="Gastos Totales (Sheets)">
+        <span class="kpi-item__icon" aria-hidden="true">💸</span>
+        <div class="kpi-item__info">
+          <span class="kpi-item__label">Gastos Totales</span>
+          <span class="kpi-item__value red" id="kpi-gastos">₡0</span>
+        </div>
+      </div>
+      <div class="kpi-item" title="Disponible (Sheets)">
+        <span class="kpi-item__icon" aria-hidden="true">💰</span>
+        <div class="kpi-item__info">
+          <span class="kpi-item__label">Disponible</span>
+          <span class="kpi-item__value green" id="kpi-disponible">₡0</span>
+        </div>
+      </div>
+      <div class="kpi-item" title="Patrocinadores (Supabase)">
+        <span class="kpi-item__icon" aria-hidden="true">🤝</span>
+        <div class="kpi-item__info">
+          <span class="kpi-item__label">Patrocinadores</span>
+          <span class="kpi-item__value blue" id="kpi-contactados">0 / 0</span>
+        </div>
+      </div>
+      <div class="kpi-item kpi-countdown" title="Días restantes">
+        <span class="kpi-item__icon" aria-hidden="true">⏳</span>
+        <div class="kpi-item__info">
+          <span class="kpi-item__label">Para el Evento</span>
+          <span class="kpi-item__value gold" id="kpi-dias">— días</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ── Module Topbar ── -->
+  <nav class="module-topbar">
+    <a href="index.html" class="btn-back">← Menú</a>
+    <span class="module-topbar__title">🤝 Patrocinadores</span>
+  </nav>
+
+  <!-- Main Content -->
+  <main class="patros-page">
+    <div class="patros-content">
+      
+      <!-- Header -->
+      <header class="patros-header">
+        <div>
+          <div class="patros-header__eyebrow">
+            <span class="dot-gold"></span> Directorio B2B
+          </div>
+          <h1 class="patros-header__title">Patrocinadores</h1>
+          <p class="patros-header__subtitle">Gestioná empresas, estados de patrocinio e importá contactos masivos.</p>
+        </div>
+        
+        <div class="header-actions">
+          <button class="btn-import-csv" onclick="openCsvModal()" aria-label="Importar desde CSV">
+            <span aria-hidden="true">📥</span> Importar CSV
+          </button>
+          <button class="btn-add-patro" onclick="openModal()" aria-label="Agregar Patrocinador">
+            <span aria-hidden="true">+</span> Nuevo Patrocinador
+          </button>
+        </div>
+      </header>
+
+      <!-- Stats -->
+      <div class="patros-stats">
+        <div class="stat-chip">
+          <span class="stat-chip__num" id="stat-total">0</span>
+          <span class="stat-chip__label">Contactados<br/>Totales</span>
+        </div>
+        <div class="stat-chip">
+          <span class="stat-chip__num green" id="stat-patrocina">0</span>
+          <span class="stat-chip__label">Patrocinando<br/>Activos</span>
+        </div>
+        <div class="stat-chip">
+          <span class="stat-chip__num gold" id="stat-pendientes">0</span>
+          <span class="stat-chip__label">Pendientes<br/>de respuesta</span>
+        </div>
+        <div class="stat-chip">
+          <span class="stat-chip__num red" id="stat-rechazados">0</span>
+          <span class="stat-chip__label">Rechazados<br/>este año</span>
+        </div>
+      </div>
+
+      <!-- Toolbar -->
+      <div class="patros-toolbar">
+        <div class="search-wrap">
+          <input type="text" id="search-input" class="patros-search" placeholder="Buscar por sponsor, contacto o empresa..." aria-label="Buscar patrocinadores" />
+        </div>
+        <select id="filter-estado" class="patros-filter" aria-label="Filtrar por estado">
+          <option value="all">Todos los Estados</option>
+          <option value="pendiente">Pendiente</option>
+          <option value="patrocina">Patrocina</option>
+          <option value="rechazado">Rechazado</option>
+        </select>
+        <select id="filter-categoria" class="patros-filter" aria-label="Filtrar por categoría">
+          <option value="all">Todas las Categorías</option>
+          <option value="Nacional">Nacional</option>
+          <option value="Internacional">Internacional</option>
+          <option value="Internos del TEC">Internos del TEC</option>
+        </select>
+      </div>
+
+      <!-- Table Wrapper -->
+      <div class="patros-table-wrap">
+        <table class="patros-table" aria-label="Lista de patrocinadores">
+          <thead>
+            <tr>
+              <th>Sponsor / Empresa</th>
+              <th>Contacto Principal</th>
+              <th>Categoría & Tipo</th>
+              <th>Historial</th>
+              <th>Estado</th>
+              <th width="80">Acciones</th>
+            </tr>
+          </thead>
+          <tbody id="patros-tbody">
+            <tr class="loading-row">
+              <td colspan="6">
+                <span class="loading-spinner"></span> Cargando base de datos...
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- Modals -->
+  
+  <!-- Add/Edit Modal -->
+  <div class="modal-overlay" id="modal-form" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+    <div class="modal-panel">
+      
+      <header class="modal-header">
+        <div class="modal-header__left">
+          <div class="modal-icon">🤝</div>
+          <div>
+            <h2 class="modal-header__title" id="modal-title">Agregar Patrocinador</h2>
+            <div class="modal-header__sub">Completá la información comercial.</div>
+          </div>
+        </div>
+        <button class="btn-modal-close" onclick="closeModal()" aria-label="Cerrar modal">×</button>
+      </header>
+
+      <form id="patro-form" class="modal-body">
+        <div class="form-grid">
+          
+          <div class="form-group full">
+            <label class="form-label" for="f-sponsor">Sponsor (Nombre de la Empresa) *</label>
+            <input type="text" id="f-sponsor" class="form-input" required placeholder="Ej. Coca Cola" />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="f-contacto">Nombre del Contacto</label>
+            <input type="text" id="f-contacto" class="form-input" placeholder="Ej. Ana Pérez" />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="f-correo">Correo Electrónico</label>
+            <input type="email" id="f-correo" class="form-input" placeholder="ana@empresa.com" />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="f-numero">Teléfono</label>
+            <input type="text" id="f-numero" class="form-input" placeholder="+506 8888-8888" />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="f-categoria">Categoría</label>
+            <select id="f-categoria" class="form-select">
+              <option value="Nacional">Nacional</option>
+              <option value="Internacional">Internacional</option>
+              <option value="Internos del TEC">Internos del TEC</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="f-tipo">Tipo de Patrocinio</label>
+            <input type="text" id="f-tipo" class="form-input" placeholder="Especie, Monetario, Canje..." />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="f-estado">Estado Actual</label>
+            <select id="f-estado" class="form-select estado-select">
+              <option value="pendiente">Pendiente</option>
+              <option value="patrocina">Patrocina</option>
+              <option value="rechazado">Rechazado</option>
+            </select>
+          </div>
+
+          <div class="form-group full">
+            <label class="form-label" for="f-historial">Historial / Notas Adicionales</label>
+            <textarea id="f-historial" class="form-textarea" placeholder="Observaciones de llamadas previas, montos acordados..."></textarea>
+          </div>
+
+        </div>
+      </form>
+
+      <footer class="modal-footer">
+        <button type="button" class="btn-cancel" onclick="closeModal()">Cancelar</button>
+        <button type="submit" form="patro-form" class="btn-save" id="btn-save-patro">
+          <span class="loading-spinner" id="save-spinner" style="display:none; width:14px; height:14px; border-width:2px; margin-right:0;"></span>
+          Guardar Patrocinador
+        </button>
+      </footer>
+
+    </div>
+  </div>
+
+  <!-- CSV Import Modal -->
+  <div class="modal-overlay" id="modal-csv" role="dialog" aria-modal="true" aria-labelledby="csv-modal-title">
+    <div class="modal-panel csv-panel">
+      
+      <header class="modal-header">
+        <div class="modal-header__left">
+          <div class="modal-icon">📥</div>
+          <div>
+            <h2 class="modal-header__title" id="csv-modal-title">Importar desde CSV</h2>
+            <div class="modal-header__sub">Subí tu archivo .csv con la lista de patrocinadores a contactar.</div>
+          </div>
+        </div>
+        <button class="btn-modal-close" onclick="closeCsvModal()" aria-label="Cerrar modal">×</button>
+      </header>
+
+      <div class="modal-body">
+        
+        <div class="csv-format-hint">
+          <strong>Formato requerido:</strong> El archivo debe tener encabezados en la primera fila.<br/>
+          Columnas esperadas: <code>sponsor, categoria, correo, numero, nombre_contacto, tipo_patrocinio</code>
+        </div>
+
+        <div class="csv-drop-zone" id="csv-drop">
+          <div class="csv-drop-zone__icon">📄</div>
+          <div class="csv-drop-zone__text">Arrastrá y soltá tu archivo .csv aquí</div>
+          <div class="csv-drop-zone__sub">o hacé clic para explorar</div>
+          <input type="file" id="csv-file" class="csv-input" accept=".csv" />
+          <button class="btn-choose-file" onclick="document.getElementById('csv-file').click()">
+            Seleccionar Archivo
+          </button>
+        </div>
+
+        <div class="csv-preview-wrap" id="csv-preview" style="display:none;">
+          <div class="csv-preview-title">Vista Previa (<span id="csv-count">0</span> filas detectadas)</div>
+          <div class="csv-preview-table-wrap">
+            <table class="csv-preview-table" id="csv-preview-table">
+              <thead></thead>
+              <tbody></tbody>
+            </table>
+          </div>
+          <div class="csv-import-count" id="csv-success-msg" style="display:none;"></div>
+        </div>
+
+      </div>
+
+      <footer class="modal-footer">
+        <button type="button" class="btn-cancel" onclick="closeCsvModal()">Cerrar</button>
+        <button type="button" class="btn-save" id="btn-import-db" onclick="processImport()" disabled>
+          <span class="loading-spinner" id="import-spinner" style="display:none; width:14px; height:14px; border-width:2px; margin-right:0;"></span>
+          Importar a Base de Datos
+        </button>
+      </footer>
+
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div class="toast" id="toast" role="alert" aria-live="assertive"></div>
+
+  <!-- Scripts -->
+  <script src="assets/js/supabase-config.js"></script>
+  <script src="assets/js/auth.js"></script>
+  <script src="assets/js/global.js"></script>
+  <script src="assets/js/patrocinadores.js"></script>
+
+</body>
+</html>

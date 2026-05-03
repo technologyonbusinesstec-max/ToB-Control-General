@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Gestión de conferencistas postulantes para el ToB 2026." />
+  <title>ToB · Conferencistas</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="assets/css/global.css" />
+  <link rel="stylesheet" href="assets/css/modules-shared.css" />
+  <link rel="stylesheet" href="assets/css/conferencistas.css" />
+</head>
+<body>
+
+  <!-- ── KPI Bar ── -->
+  <header class="kpi-bar">
+    <div class="kpi-bar__logo">
+      <a href="index.html" class="logo-badge" style="text-decoration:none;color:#fff;">ToB</a>
+      <span>Operations</span>
+    </div>
+    <div class="kpi-bar__indicators">
+      <div class="kpi-item"><span class="kpi-item__icon">💸</span><div class="kpi-item__info"><span class="kpi-item__label">Gastos Totales</span><span class="kpi-item__value red" id="kpi-gastos">₡0</span></div></div>
+      <div class="kpi-item"><span class="kpi-item__icon">💰</span><div class="kpi-item__info"><span class="kpi-item__label">Disponible</span><span class="kpi-item__value green" id="kpi-disponible">₡0</span></div></div>
+      <div class="kpi-item"><span class="kpi-item__icon">🤝</span><div class="kpi-item__info"><span class="kpi-item__label">Patrocinadores</span><span class="kpi-item__value blue" id="kpi-contactados">0 / 0</span></div></div>
+      <div class="kpi-item kpi-countdown"><span class="kpi-item__icon">⏳</span><div class="kpi-item__info"><span class="kpi-item__label">Para el Evento</span><span class="kpi-item__value gold" id="kpi-dias">— días</span></div></div>
+    </div>
+  </header>
+
+  <!-- ── Module Topbar ── -->
+  <nav class="module-topbar">
+    <a href="index.html" class="btn-back">← Menú</a>
+    <span class="module-topbar__title">🎤 Conferencistas</span>
+  </nav>
+
+  <!-- ── Main ── -->
+  <main class="conferencistas-page">
+    <div class="conf-content">
+
+      <!-- Header -->
+      <div class="conf-header">
+        <div class="conf-header__left">
+          <div class="conf-header__eyebrow">
+            <span class="dot-orange"></span>
+            Postulantes — ToB 2026
+          </div>
+          <h1 class="conf-header__title">Gestión de Conferencistas</h1>
+          <p class="conf-header__subtitle">Administrá los postulantes y confirmá su participación en el evento.</p>
+        </div>
+        <button class="btn-add-conf" id="btn-open-modal" aria-label="Agregar nuevo conferencista">
+          <span class="btn-icon">+</span>
+          Agregar Conferencista
+        </button>
+      </div>
+
+      <!-- Stats -->
+      <div class="conf-stats" id="conf-stats">
+        <div class="stat-chip">
+          <span class="stat-chip__num orange" id="stat-total">—</span>
+          <span class="stat-chip__label">Total<br/>postulantes</span>
+        </div>
+        <div class="stat-chip">
+          <span class="stat-chip__num green" id="stat-confirmados">—</span>
+          <span class="stat-chip__label">Confirmados</span>
+        </div>
+        <div class="stat-chip">
+          <span class="stat-chip__num muted" id="stat-pendientes">—</span>
+          <span class="stat-chip__label">Pendientes</span>
+        </div>
+      </div>
+
+      <!-- Toolbar -->
+      <div class="conf-toolbar">
+        <div class="search-wrap">
+          <input
+            type="search"
+            id="conf-search"
+            class="conf-search"
+            placeholder="Buscar por nombre, empresa, especialidad..."
+            aria-label="Buscar conferencistas"
+          />
+        </div>
+        <select class="conf-filter" id="conf-filter-estado" aria-label="Filtrar por estado">
+          <option value="">Todos los estados</option>
+          <option value="Pendiente">Pendiente</option>
+          <option value="Confirmado">Confirmado</option>
+        </select>
+      </div>
+
+      <!-- Table -->
+      <div class="conf-table-wrap">
+        <table class="conf-table" id="conf-table" aria-label="Lista de conferencistas">
+          <thead>
+            <tr>
+              <th>Estado</th>
+              <th>Conferencista</th>
+              <th>Cargo / Empresa</th>
+              <th>Especialidad</th>
+              <th>Contacto</th>
+              <th>Exp.</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody id="conf-tbody">
+            <!-- Loading state -->
+            <tr class="loading-row">
+              <td colspan="7">
+                <span class="loading-spinner"></span>
+                Conectando con la base de datos...
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- ══════════════════════════════════════════════════════
+       MODAL — Agregar Conferencista
+  ═══════════════════════════════════════════════════════════ -->
+  <div class="modal-overlay" id="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+    <div class="modal-panel">
+
+      <!-- Modal Header -->
+      <div class="modal-header">
+        <div class="modal-header__left">
+          <div class="modal-icon" aria-hidden="true">🎤</div>
+          <div>
+            <div class="modal-header__title" id="modal-title">Agregar Conferencista</div>
+            <div class="modal-header__sub">Todos los campos son opcionales</div>
+          </div>
+        </div>
+        <button class="btn-modal-close" id="btn-close-modal" aria-label="Cerrar modal">✕</button>
+      </div>
+
+      <!-- Modal Body / Form -->
+      <div class="modal-body">
+        <form id="conf-form" novalidate autocomplete="off">
+          <div class="form-grid">
+
+            <!-- Nombre -->
+            <div class="form-group">
+              <label class="form-label" for="f-nombre">Nombre</label>
+              <input id="f-nombre" name="nombre" type="text" class="form-input" placeholder="Juan" />
+            </div>
+
+            <!-- Apellido -->
+            <div class="form-group">
+              <label class="form-label" for="f-apellido">Apellido</label>
+              <input id="f-apellido" name="apellido" type="text" class="form-input" placeholder="Pérez" />
+            </div>
+
+            <!-- Email -->
+            <div class="form-group">
+              <label class="form-label" for="f-email">Email</label>
+              <input id="f-email" name="email" type="email" class="form-input" placeholder="juan@empresa.com" />
+            </div>
+
+            <!-- Teléfono -->
+            <div class="form-group">
+              <label class="form-label" for="f-telefono">Teléfono</label>
+              <input id="f-telefono" name="telefono" type="tel" class="form-input" placeholder="+506 8888-8888" />
+            </div>
+
+            <!-- Cargo Actual -->
+            <div class="form-group">
+              <label class="form-label" for="f-cargo">Cargo Actual</label>
+              <input id="f-cargo" name="cargo_actual" type="text" class="form-input" placeholder="CTO, Director, Fundador..." />
+            </div>
+
+            <!-- Empresa -->
+            <div class="form-group">
+              <label class="form-label" for="f-empresa">Empresa / Organización</label>
+              <input id="f-empresa" name="empresa" type="text" class="form-input" placeholder="Nombre de la empresa" />
+            </div>
+
+            <!-- Especialidad -->
+            <div class="form-group">
+              <label class="form-label" for="f-especialidad">Especialidad / Tema</label>
+              <input id="f-especialidad" name="especialidad" type="text" class="form-input" placeholder="IA, Emprendimiento, Ciberseguridad..." />
+            </div>
+
+            <!-- Años de experiencia -->
+            <div class="form-group">
+              <label class="form-label" for="f-anios">Años de Experiencia</label>
+              <input id="f-anios" name="anios_experiencia" type="number" min="0" max="60" class="form-input" placeholder="5" />
+            </div>
+
+            <!-- LinkedIn -->
+            <div class="form-group full">
+              <label class="form-label" for="f-linkedin">URL de LinkedIn</label>
+              <input id="f-linkedin" name="linkedin_url" type="url" class="form-input" placeholder="https://linkedin.com/in/juan-perez" />
+            </div>
+
+            <!-- Currículum URL -->
+            <div class="form-group full">
+              <label class="form-label" for="f-cv">URL del Currículum (Drive, Dropbox, etc.)</label>
+              <input id="f-cv" name="curriculum_url" type="url" class="form-input" placeholder="https://drive.google.com/..." />
+            </div>
+
+            <!-- Estado -->
+            <div class="form-group full">
+              <label class="form-label" for="f-estado">Estado inicial</label>
+              <select id="f-estado" name="estado" class="form-select">
+                <option value="Pendiente">⬜ Pendiente</option>
+                <option value="Confirmado">✅ Confirmado</option>
+              </select>
+            </div>
+
+          </div>
+        </form>
+      </div>
+
+      <!-- Modal Footer -->
+      <div class="modal-footer">
+        <button class="btn-cancel" id="btn-cancel-modal">Cancelar</button>
+        <button class="btn-save" id="btn-save-conf">
+          <span id="save-spinner" style="display:none;" class="loading-spinner" style="width:14px;height:14px;"></span>
+          Guardar Conferencista
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Toast de notificación -->
+  <div class="toast" id="toast" role="alert" aria-live="polite"></div>
+
+  <!-- ── Scripts ── -->
+  <!-- Supabase CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="assets/js/supabase-config.js"></script>
+  <script src="assets/js/auth.js"></script>
+  <script src="assets/js/global.js"></script>
+  <script src="assets/js/conferencistas.js"></script>
+
+</body>
+</html>

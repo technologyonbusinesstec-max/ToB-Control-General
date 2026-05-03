@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Módulo de control de ingresos y patrocinios del equipo ToB 2026." />
+  <title>ToB · Control de Ingresos</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="assets/css/global.css" />
+  <link rel="stylesheet" href="assets/css/modules-shared.css" />
+  <link rel="stylesheet" href="assets/css/ingresos.css" />
+</head>
+<body>
+
+  <div class="bg-grid" aria-hidden="true"></div>
+
+  <!-- KPI Bar -->
+  <header class="kpi-bar">
+    <div class="kpi-bar__logo">
+      <a href="index.html" class="logo-badge" style="text-decoration:none;color:#fff;">ToB</a>
+      <span>Operations</span>
+    </div>
+    <div class="kpi-bar__indicators">
+      <div class="kpi-item"><span class="kpi-item__icon">💸</span><div class="kpi-item__info"><span class="kpi-item__label">Gastos Totales</span><span class="kpi-item__value red" id="kpi-gastos">₡0</span></div></div>
+      <div class="kpi-item"><span class="kpi-item__icon">💰</span><div class="kpi-item__info"><span class="kpi-item__label">Disponible</span><span class="kpi-item__value green" id="kpi-disponible">₡0</span></div></div>
+      <div class="kpi-item"><span class="kpi-item__icon">🤝</span><div class="kpi-item__info"><span class="kpi-item__label">Patrocinadores</span><span class="kpi-item__value blue" id="kpi-contactados">0 / 0</span></div></div>
+      <div class="kpi-item kpi-countdown"><span class="kpi-item__icon">⏳</span><div class="kpi-item__info"><span class="kpi-item__label">Para el Evento</span><span class="kpi-item__value gold" id="kpi-dias">— días</span></div></div>
+    </div>
+  </header>
+
+  <!-- Module Topbar -->
+  <nav class="module-topbar">
+    <a href="index.html" class="btn-back">← Menú</a>
+    <span class="module-topbar__title">💰 Control de Ingresos</span>
+  </nav>
+
+  <!-- Main content -->
+  <main class="module-content">
+
+    <!-- Hero del módulo -->
+    <div class="ingresos-hero">
+      <div class="ingresos-hero__badge">
+        <span class="dot"></span>
+        Gestión de Ingresos — ToB 2026
+      </div>
+      <h1 class="module-section-title">
+        Centro de<br/><span class="highlight-green">Ingresos y Patrocinios</span>
+      </h1>
+      <p class="module-section-subtitle">
+        Registrá ingresos monetarios, patrocinios en especie y consultá los pasos
+        que un patrocinador debe seguir para concretar su aporte al evento.
+      </p>
+    </div>
+
+    <!-- Acción: Pasos a seguir (destacada arriba) -->
+    <div class="steps-banner" id="btn-pasos">
+      <div class="steps-banner__left">
+        <span class="steps-banner__icon">📋</span>
+        <div class="steps-banner__text">
+          <strong>Pasos a seguir por el patrocinador</strong>
+          <span>Documento oficial con el proceso completo para concretar un patrocinio con el ToB.</span>
+        </div>
+      </div>
+      <a
+        href="https://docs.google.com/document/d/1FshZlomPSJKZ7mljMRdpclXifJ-FW1MxS4QwjcX2qG8/edit?usp=drive_link"
+        target="_blank"
+        rel="noopener"
+        class="btn-external primary"
+        id="link-pasos"
+      >
+        ↗ Ver Documento
+      </a>
+    </div>
+
+    <!-- Divisor -->
+    <div class="section-header" style="margin:40px 0 28px;">
+      <div class="section-header__line"></div>
+      <span class="section-header__title">Formularios de Registro</span>
+      <div class="section-header__line"></div>
+    </div>
+
+    <!-- Cards de acción -->
+    <div class="action-cards ingresos-cards">
+
+      <!-- Card 1: Ingreso monetario -->
+      <article class="action-card" data-accent="green" style="--card-accent: rgba(104,211,145,0.4);">
+        <div class="action-card__icon">💵</div>
+        <h2 class="action-card__title">Registrar Ingreso de Patrocinador</h2>
+        <p class="action-card__desc">
+          Usá este formulario cuando un patrocinador realice un aporte <strong>monetario</strong>
+          al ToB. Completá todos los campos para llevar un registro preciso.
+        </p>
+        <div class="action-card__tags">
+          <span class="ing-tag green">Dinero en efectivo</span>
+          <span class="ing-tag green">Transferencia</span>
+          <span class="ing-tag green">Depósito</span>
+        </div>
+        <a
+          href="https://docs.google.com/forms/d/e/1FAIpQLSfHgE7C_J5CXSIXMOCTNV-KMvXKJUc8wflSoGwUkIvqVxKeVg/viewform?usp=publish-editor"
+          target="_blank"
+          rel="noopener"
+          class="action-card__btn btn-green"
+          id="link-ingreso-monetario"
+        >
+          ↗ Abrir Formulario
+        </a>
+      </article>
+
+      <!-- Card 2: Patrocinio en especie -->
+      <article class="action-card" data-accent="purple" style="--card-accent: rgba(183,148,244,0.4);">
+        <div class="action-card__icon">🎁</div>
+        <h2 class="action-card__title">Registrar Patrocinio en Especie</h2>
+        <p class="action-card__desc">
+          Usá este formulario cuando el aporte del patrocinador sea en <strong>bienes o servicios</strong>
+          en lugar de dinero. Incluye mercancía, servicios, equipos, etc.
+        </p>
+        <div class="action-card__tags">
+          <span class="ing-tag purple">Productos</span>
+          <span class="ing-tag purple">Servicios</span>
+          <span class="ing-tag purple">Equipos</span>
+        </div>
+        <a
+          href="https://docs.google.com/forms/d/e/1FAIpQLSco77laLtuWNqpIn9AWtpKBSKT4hdvAX2VPYLiuV_7bjOvjag/viewform?usp=publish-editor"
+          target="_blank"
+          rel="noopener"
+          class="action-card__btn btn-purple"
+          id="link-ingreso-especie"
+        >
+          ↗ Abrir Formulario
+        </a>
+      </article>
+
+    </div>
+
+    <!-- Nota informativa -->
+    <div class="ingresos-note">
+      <span>ℹ️</span>
+      <p>
+        Todos los registros quedan guardados en la base de datos del ToB.
+        Si tenés dudas, consultá el documento de pasos antes de llenar el formulario.
+      </p>
+    </div>
+
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="assets/js/supabase-config.js"></script>
+  <script src="assets/js/auth.js"></script>
+  <script src="assets/js/global.js"></script>
+  <script src="assets/js/ingresos.js"></script>
+</body>
+</html>
