@@ -74,65 +74,99 @@
       </a>
     </div>
 
+    <!-- Histórico Banner -->
+    <div class="steps-banner" style="margin-top: 16px; background: rgba(183,148,244,0.06); border-color: rgba(183,148,244,0.2);">
+      <div class="steps-banner__left">
+        <span class="steps-banner__icon">📊</span>
+        <div class="steps-banner__text">
+          <strong>Histórico de Patrocinadores</strong>
+          <span>Revisa la hoja de cálculo con todos los patrocinios reportados.</span>
+        </div>
+      </div>
+      <a
+        href="https://docs.google.com/spreadsheets/d/e/2PACX-1vQcsR6tfI-W0Ur-YbjHMKvdkFqK_mJc103N6zjMgwzE0PJYj6-3jlVJjkeP8hcRqKeTcBqwaQj1PdPg/pubhtml"
+        target="_blank"
+        rel="noopener"
+        class="btn-external"
+        style="background: rgba(183,148,244,0.1); color: #e9d8fd;"
+      >
+        ↗ Abrir Histórico
+      </a>
+    </div>
+
     <!-- Divisor -->
     <div class="section-header" style="margin:40px 0 28px;">
       <div class="section-header__line"></div>
-      <span class="section-header__title">Formularios de Registro</span>
+      <span class="section-header__title">Asistente de Registro de Patrocinio</span>
       <div class="section-header__line"></div>
     </div>
 
-    <!-- Cards de acción -->
-    <div class="action-cards ingresos-cards">
+    <!-- Wizard Container -->
+    <section class="wizard-container" aria-label="Asistente de registro">
+      <!-- Progress Bar -->
+      <div class="wizard-progress">
+        <div class="wizard-progress__fill" id="wizard-progress-bar"></div>
+      </div>
 
-      <!-- Card 1: Ingreso monetario -->
-      <article class="action-card" data-accent="green" style="--card-accent: rgba(104,211,145,0.4);">
-        <div class="action-card__icon">💵</div>
-        <h2 class="action-card__title">Registrar Ingreso de Patrocinador</h2>
-        <p class="action-card__desc">
-          Usá este formulario cuando un patrocinador realice un aporte <strong>monetario</strong>
-          al ToB. Completá todos los campos para llevar un registro preciso.
-        </p>
-        <div class="action-card__tags">
-          <span class="ing-tag green">Dinero en efectivo</span>
-          <span class="ing-tag green">Transferencia</span>
-          <span class="ing-tag green">Depósito</span>
+      <!-- Paso 1: Inicio -->
+      <div class="wizard-step active" id="wizard-step-1">
+        <div class="wizard-step__icon" aria-hidden="true">✨</div>
+        <h2 class="wizard-step__title">¿Deseas reportar un nuevo patrocinio?</h2>
+        <p class="wizard-step__desc">Este asistente te guiará paso a paso para asegurarnos de que el patrocinador quede correctamente registrado en todos los sistemas del ToB.</p>
+        <div class="wizard-step__actions">
+          <button class="btn-wizard primary" onclick="window.goToWizardStep(2)">Sí, empezar</button>
         </div>
-        <a
-          href="https://docs.google.com/forms/d/e/1FAIpQLSfHgE7C_J5CXSIXMOCTNV-KMvXKJUc8wflSoGwUkIvqVxKeVg/viewform?usp=publish-editor"
-          target="_blank"
-          rel="noopener"
-          class="action-card__btn btn-green"
-          id="link-ingreso-monetario"
-        >
-          ↗ Abrir Formulario
-        </a>
-      </article>
+      </div>
 
-      <!-- Card 2: Patrocinio en especie -->
-      <article class="action-card" data-accent="purple" style="--card-accent: rgba(183,148,244,0.4);">
-        <div class="action-card__icon">🎁</div>
-        <h2 class="action-card__title">Registrar Patrocinio en Especie</h2>
-        <p class="action-card__desc">
-          Usá este formulario cuando el aporte del patrocinador sea en <strong>bienes o servicios</strong>
-          en lugar de dinero. Incluye mercancía, servicios, equipos, etc.
-        </p>
-        <div class="action-card__tags">
-          <span class="ing-tag purple">Productos</span>
-          <span class="ing-tag purple">Servicios</span>
-          <span class="ing-tag purple">Equipos</span>
+      <!-- Paso 2: Validación de BD -->
+      <div class="wizard-step" id="wizard-step-2">
+        <div class="wizard-step__icon" aria-hidden="true">🗄️</div>
+        <h2 class="wizard-step__title">¿Ya registraste al patrocinador en la BD?</h2>
+        <p class="wizard-step__desc">Antes de llenar el formulario financiero, el patrocinador debe existir en nuestro módulo de Patrocinadores interno.</p>
+        <div class="wizard-step__actions">
+          <button class="btn-wizard secondary" onclick="window.location.href='patrocinadores.html'">No, ir a registrarlo</button>
+          <button class="btn-wizard primary" onclick="window.goToWizardStep(3)">Sí, ya está registrado</button>
         </div>
-        <a
-          href="https://docs.google.com/forms/d/e/1FAIpQLSco77laLtuWNqpIn9AWtpKBSKT4hdvAX2VPYLiuV_7bjOvjag/viewform?usp=publish-editor"
-          target="_blank"
-          rel="noopener"
-          class="action-card__btn btn-purple"
-          id="link-ingreso-especie"
-        >
-          ↗ Abrir Formulario
-        </a>
-      </article>
+        <button class="btn-wizard-back" onclick="window.goToWizardStep(1)">← Volver</button>
+      </div>
 
-    </div>
+      <!-- Paso 3: Formulario -->
+      <div class="wizard-step" id="wizard-step-3">
+        <div class="wizard-step__icon" aria-hidden="true">📝</div>
+        <h2 class="wizard-step__title">Llena el Formulario Oficial</h2>
+        <p class="wizard-step__desc">Abre el siguiente formulario y completa todos los datos del aporte (ya sea monetario o en especie).</p>
+        <a href="https://docs.google.com/forms/u/0/d/e/1FAIpQLSe6H52SWD1a7jit5aKPJJfT06K2JkPzHfJu_jKMbi5Yo_2PRw/formResponse" target="_blank" rel="noopener" class="btn-wizard forms-btn">↗ Abrir Formulario</a>
+        <div class="wizard-step__actions">
+          <button class="btn-wizard primary" onclick="window.goToWizardStep(4)">Ya lo llené, continuar</button>
+        </div>
+        <button class="btn-wizard-back" onclick="window.goToWizardStep(2)">← Volver</button>
+      </div>
+
+      <!-- Paso 4: Verificación -->
+      <div class="wizard-step" id="wizard-step-4">
+        <div class="wizard-step__icon" aria-hidden="true">👀</div>
+        <h2 class="wizard-step__title">Verifica en el Histórico</h2>
+        <p class="wizard-step__desc">Confirma que los datos hayan ingresado correctamente a la hoja de cálculo automática de Google Sheets.</p>
+        <a href="https://docs.google.com/spreadsheets/d/e/2PACX-1vQcsR6tfI-W0Ur-YbjHMKvdkFqK_mJc103N6zjMgwzE0PJYj6-3jlVJjkeP8hcRqKeTcBqwaQj1PdPg/pubhtml" target="_blank" rel="noopener" class="btn-wizard sheets-btn">↗ Revisar Google Sheets</a>
+        <div class="wizard-step__actions">
+          <button class="btn-wizard primary" onclick="window.goToWizardStep(5)">Todo correcto, continuar</button>
+        </div>
+        <button class="btn-wizard-back" onclick="window.goToWizardStep(3)">← Volver</button>
+      </div>
+
+      <!-- Paso 5: WhatsApp -->
+      <div class="wizard-step" id="wizard-step-5">
+        <div class="wizard-step__icon" aria-hidden="true">💬</div>
+        <h2 class="wizard-step__title">Notifica el Ingreso</h2>
+        <p class="wizard-step__desc">Por último, avísale a finanzas por WhatsApp para que apruebe el movimiento en el sistema.</p>
+        <div class="wizard-step__actions">
+          <a href="#" id="btn-whatsapp" target="_blank" rel="noopener" class="btn-wizard wpp-btn">
+            <span aria-hidden="true">🟢</span> Enviar WhatsApp
+          </a>
+        </div>
+        <button class="btn-wizard-back" onclick="window.goToWizardStep(4)">← Volver</button>
+      </div>
+    </section>
 
     <!-- Nota informativa -->
     <div class="ingresos-note">
