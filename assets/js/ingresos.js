@@ -62,7 +62,14 @@ async function setupWhatsAppLink() {
   }
 
   const phone = '50661515240';
-  const text = `Hola, soy ${userName}. Acabo de registrar un próximo patrocinador para el ToB. Te invito a que revises el Histórico de Patrocinadores para confirmar la solicitud.`;
+  const text = `Buenas tardes, estimado Coordinador de Finanzas.
+
+Le informo que acabo de registrar un nuevo futuro patrocinador en la plantilla de patrocinadores fijos del TOB 2026. Actualmente, la solicitud queda en espera de aprobación para verificar que toda la información y los datos proporcionados sean correctos antes de continuar con el proceso correspondiente.
+
+Quedo atento(a) a cualquier observación o validación adicional.
+
+Muchas gracias.
+- ${userName}`;
   const encodedText = encodeURIComponent(text);
   
   btnWpp.href = `https://wa.me/${phone}?text=${encodedText}`;
