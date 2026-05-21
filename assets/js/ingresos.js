@@ -69,7 +69,7 @@ Le informo que acabo de registrar un nuevo futuro patrocinador en la plantilla d
 Quedo atento(a) a cualquier observación o validación adicional.
 
 Muchas gracias.
-- ${userName}`;
+- `;
   const encodedText = encodeURIComponent(text);
   
   btnWpp.href = `https://wa.me/${phone}?text=${encodedText}`;
