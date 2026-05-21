@@ -170,7 +170,7 @@
 
 .btn-wizard.primary {
   background: var(--text-primary);
-  color: var(--bg-main);
+  color: #000;
 }
 
 .btn-wizard.primary:hover {
