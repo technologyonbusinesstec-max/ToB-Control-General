@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="Módulo de control y reporte de gastos del equipo ToB 2026." />
+  <meta name="description" content="Sistema de gestión, solicitud y aprobación de gastos del equipo ToB 2026." />
   <title>ToB · Control de Gastos</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -14,49 +14,78 @@
 </head>
 <body>
 
-  <!-- KPI Bar -->
+  <!-- ── KPI Bar ── -->
   <header class="kpi-bar">
     <div class="kpi-bar__logo">
       <a href="index.html" class="logo-badge" style="text-decoration:none;color:#fff;">ToB</a>
       <span>Operations</span>
     </div>
     <div class="kpi-bar__indicators">
-      <div class="kpi-item"><span class="kpi-item__icon">💸</span><div class="kpi-item__info"><span class="kpi-item__label">Gastos Totales</span><span class="kpi-item__value red" id="kpi-gastos">₡0</span></div></div>
+      <div class="kpi-item"><span class="kpi-item__icon">💸</span><div class="kpi-item__info"><span class="kpi-item__label">Gastos Aprobados</span><span class="kpi-item__value red" id="kpi-gastos">₡0</span></div></div>
       <div class="kpi-item"><span class="kpi-item__icon">💰</span><div class="kpi-item__info"><span class="kpi-item__label">Disponible</span><span class="kpi-item__value green" id="kpi-disponible">₡0</span></div></div>
       <div class="kpi-item"><span class="kpi-item__icon">🤝</span><div class="kpi-item__info"><span class="kpi-item__label">Patrocinadores</span><span class="kpi-item__value blue" id="kpi-contactados">0 / 0</span></div></div>
       <div class="kpi-item kpi-countdown"><span class="kpi-item__icon">⏳</span><div class="kpi-item__info"><span class="kpi-item__label">Para el Evento</span><span class="kpi-item__value gold" id="kpi-dias">— días</span></div></div>
     </div>
   </header>
 
-  <!-- Module Topbar -->
+  <!-- ── Module Topbar ── -->
   <nav class="module-topbar">
     <a href="index.html" class="btn-back">← Menú</a>
     <span class="module-topbar__title">💸 Control de Gastos</span>
-    <div class="module-topbar__actions">
-      <button id="btn-new-expense" class="btn-primary">
-        ➕ Nueva Solicitud
-      </button>
-    </div>
   </nav>
 
-  <!-- Main Content: Dashboard & Table -->
-  <main class="gastos-main">
-    <div class="gastos-banner">
-      <span class="gastos-banner__icon">📊</span>
-      <div>
-        <strong>Historial Financiero</strong>
-        <span>Visualiza y gestiona todas las solicitudes de gastos del equipo.</span>
-      </div>
-    </div>
-
+  <!-- ── Main ── -->
+  <main class="gastos-page">
     <div class="gastos-content">
-      <!-- Filtros / Buscador -->
-      <div class="table-controls">
-        <div class="search-box">
-          <span class="search-icon">🔍</span>
-          <input type="text" id="search-gastos" placeholder="Buscar por código, solicitante o categoría..." class="search-input" />
+
+      <!-- Header -->
+      <div class="gastos-header">
+        <div class="gastos-header__left">
+          <div class="gastos-header__eyebrow">
+            <span class="dot-red"></span>
+            Finanzas — ToB 2026
+          </div>
+          <h1 class="gastos-header__title">Control de Gastos</h1>
+          <p class="gastos-header__subtitle">Gestioná las solicitudes, aprobaciones y cierres de gastos del evento.</p>
         </div>
-        <select id="filter-estado" class="filter-select">
+        <button class="btn-add-gasto" id="btn-new-expense" aria-label="Agregar nueva solicitud de gasto">
+          <span class="btn-icon">+</span>
+          Nueva Solicitud
+        </button>
+      </div>
+
+      <!-- Stats -->
+      <div class="gastos-stats" id="gastos-stats">
+        <div class="stat-chip">
+          <span class="stat-chip__num red" id="stat-total">—</span>
+          <span class="stat-chip__label">Total<br/>solicitudes</span>
+        </div>
+        <div class="stat-chip">
+          <span class="stat-chip__num green" id="stat-aprobados">—</span>
+          <span class="stat-chip__label">Aprobados</span>
+        </div>
+        <div class="stat-chip">
+          <span class="stat-chip__num muted" id="stat-pendientes">—</span>
+          <span class="stat-chip__label">Pendientes</span>
+        </div>
+        <div class="stat-chip">
+          <span class="stat-chip__num blue" id="stat-completados">—</span>
+          <span class="stat-chip__label">Completados</span>
+        </div>
+      </div>
+
+      <!-- Toolbar -->
+      <div class="gastos-toolbar">
+        <div class="search-wrap">
+          <input
+            type="search"
+            id="search-gastos"
+            class="gastos-search"
+            placeholder="Buscar por código, solicitante o categoría..."
+            aria-label="Buscar gastos"
+          />
+        </div>
+        <select class="gastos-filter" id="filter-estado" aria-label="Filtrar por estado">
           <option value="todos">Todos los estados</option>
           <option value="Pendiente">Pendiente</option>
           <option value="Aprobado">Aprobado</option>
@@ -66,215 +95,279 @@
         </select>
       </div>
 
-      <!-- Data Table -->
-      <div class="table-responsive">
-        <table class="data-table" id="gastos-table">
+      <!-- Table -->
+      <div class="gastos-table-wrap">
+        <table class="gastos-table" id="gastos-table" aria-label="Lista de gastos">
           <thead>
             <tr>
-              <th>Código</th>
-              <th>Fecha</th>
-              <th>Solicitante</th>
-              <th>Categoría</th>
-              <th>Monto</th>
               <th>Estado</th>
+              <th>Código</th>
+              <th>Solicitante</th>
+              <th>Categoría / Modalidad</th>
+              <th>Monto</th>
+              <th>Fecha</th>
               <th>Acciones</th>
             </tr>
           </thead>
           <tbody id="gastos-tbody">
-            <!-- Dynamic rows will be inserted here by JS -->
-            <tr class="empty-state">
-              <td colspan="7">Cargando datos...</td>
+            <tr class="loading-row">
+              <td colspan="7">
+                <span class="loading-spinner"></span>
+                Conectando con la base de datos...
+              </td>
             </tr>
           </tbody>
         </table>
       </div>
+
     </div>
   </main>
 
-  <!-- Modals -->
-  <!-- Modal 1: Nueva Solicitud -->
-  <div class="modal-overlay hidden" id="modal-new-expense">
-    <div class="modal-content">
+
+  <!-- ══════════════════════════════════════════════════════
+       MODAL 1 — Nueva Solicitud de Gasto
+  ═══════════════════════════════════════════════════════════ -->
+  <div class="modal-overlay" id="modal-new-expense" role="dialog" aria-modal="true" aria-labelledby="modal-new-title">
+    <div class="modal-panel">
+
       <div class="modal-header">
-        <h2>📝 Nueva Solicitud de Gasto</h2>
-        <button class="btn-close" id="btn-close-new">×</button>
+        <div class="modal-header__left">
+          <div class="modal-icon" aria-hidden="true">💸</div>
+          <div>
+            <div class="modal-header__title" id="modal-new-title">Agregar Solicitud de Gasto</div>
+            <div class="modal-header__sub">Completa todos los campos obligatorios</div>
+          </div>
+        </div>
+        <button class="btn-modal-close" id="btn-close-new" aria-label="Cerrar modal">✕</button>
       </div>
+
       <div class="modal-body">
-        <form id="form-new-expense" class="expense-form">
-          
-          <div class="form-section">
-            <h3>1. Información Personal</h3>
-            <div class="form-grid">
-              <div class="form-group">
-                <label>Nombre Completo *</label>
-                <input type="text" id="solicitante_nombre" required />
-              </div>
-              <div class="form-group">
-                <label>Coordinación *</label>
-                <input type="text" id="solicitante_coordinacion" required />
-              </div>
-              <div class="form-group">
-                <label>Teléfono</label>
-                <input type="tel" id="solicitante_telefono" />
-              </div>
-            </div>
-          </div>
+        <form id="form-new-expense" novalidate autocomplete="off">
+          <div class="form-grid">
 
-          <div class="form-section">
-            <h3>2. Detalles del Gasto</h3>
+            <!-- Nombre Completo -->
             <div class="form-group">
-              <label>Título del Gasto *</label>
-              <input type="text" id="gasto_titulo" placeholder="Ej. Compra de materiales de decoración" required />
+              <label class="form-label" for="solicitante_nombre">Nombre Completo *</label>
+              <input id="solicitante_nombre" type="text" class="form-input" placeholder="Juan Pérez" required />
             </div>
-            <div class="form-group">
-              <label>Descripción y Motivo *</label>
-              <textarea id="gasto_descripcion" rows="3" required></textarea>
-            </div>
-            <div class="form-grid">
-              <div class="form-group">
-                <label>Categoría *</label>
-                <select id="gasto_categoria" required>
-                  <option value="">Seleccionar...</option>
-                  <option value="Alimentación">Alimentación</option>
-                  <option value="Transporte">Transporte</option>
-                  <option value="Publicidad">Publicidad</option>
-                  <option value="Materiales">Materiales</option>
-                  <option value="Logística">Logística</option>
-                  <option value="Tecnología">Tecnología</option>
-                  <option value="Decoración">Decoración</option>
-                  <option value="Emergencia">Emergencia</option>
-                </select>
-              </div>
-              <div class="form-group">
-                <label>Modalidad de Gasto *</label>
-                <select id="gasto_modalidad" required>
-                  <option value="">Seleccionar...</option>
-                  <option value="Adelanto de Fondos">Adelanto de Fondos</option>
-                  <option value="Pago Directo a Proveedor">Pago Directo a Proveedor</option>
-                  <option value="Reembolso de Gastos">Reembolso de Gastos</option>
-                </select>
-              </div>
-            </div>
-          </div>
 
-          <div class="form-section">
-            <h3>3. Información Financiera</h3>
-            <div class="form-grid">
-              <div class="form-group">
-                <label>Monto Estimado (₡) *</label>
-                <input type="number" id="gasto_monto" step="0.01" min="0" required />
-              </div>
-              <div class="form-group">
-                <label>Prioridad *</label>
-                <select id="gasto_prioridad" required>
-                  <option value="Baja">Baja</option>
-                  <option value="Media" selected>Media</option>
-                  <option value="Alta">Alta</option>
-                  <option value="Urgente">Urgente</option>
-                </select>
-              </div>
-            </div>
+            <!-- Coordinación -->
             <div class="form-group">
-              <label>Evidencia / Cotización (Opcional)</label>
-              <input type="file" id="gasto_evidencia_solicitud" accept="image/*,.pdf" />
-              <small class="form-hint">Sube una imagen o PDF de la proforma/cotización.</small>
+              <label class="form-label" for="solicitante_coordinacion">Coordinación *</label>
+              <input id="solicitante_coordinacion" type="text" class="form-input" placeholder="Logística, Marketing..." required />
             </div>
-          </div>
 
-          <div class="modal-footer">
-            <button type="button" class="btn-secondary" id="btn-cancel-new">Cancelar</button>
-            <button type="submit" class="btn-primary">Enviar Solicitud</button>
+            <!-- Teléfono -->
+            <div class="form-group">
+              <label class="form-label" for="solicitante_telefono">Teléfono</label>
+              <input id="solicitante_telefono" type="tel" class="form-input" placeholder="8888-8888" />
+            </div>
+
+            <!-- Título -->
+            <div class="form-group">
+              <label class="form-label" for="gasto_titulo">Título del Gasto *</label>
+              <input id="gasto_titulo" type="text" class="form-input" placeholder="Ej. Compra de materiales" required />
+            </div>
+
+            <!-- Descripción -->
+            <div class="form-group full">
+              <label class="form-label" for="gasto_descripcion">Descripción y Motivo *</label>
+              <textarea id="gasto_descripcion" class="form-input form-textarea" rows="3" placeholder="Explicá el propósito del gasto..." required></textarea>
+            </div>
+
+            <!-- Categoría -->
+            <div class="form-group">
+              <label class="form-label" for="gasto_categoria">Categoría *</label>
+              <select id="gasto_categoria" class="form-select" required>
+                <option value="">Seleccionar...</option>
+                <option value="Alimentación">Alimentación</option>
+                <option value="Transporte">Transporte</option>
+                <option value="Publicidad">Publicidad</option>
+                <option value="Materiales">Materiales</option>
+                <option value="Logística">Logística</option>
+                <option value="Tecnología">Tecnología</option>
+                <option value="Decoración">Decoración</option>
+                <option value="Emergencia">Emergencia</option>
+              </select>
+            </div>
+
+            <!-- Modalidad -->
+            <div class="form-group">
+              <label class="form-label" for="gasto_modalidad">Modalidad *</label>
+              <select id="gasto_modalidad" class="form-select" required>
+                <option value="">Seleccionar...</option>
+                <option value="Adelanto de Fondos">Adelanto de Fondos</option>
+                <option value="Pago Directo a Proveedor">Pago Directo a Proveedor</option>
+                <option value="Reembolso de Gastos">Reembolso de Gastos</option>
+              </select>
+            </div>
+
+            <!-- Monto Estimado -->
+            <div class="form-group">
+              <label class="form-label" for="gasto_monto">Monto Estimado (₡) *</label>
+              <input id="gasto_monto" type="number" class="form-input" step="0.01" min="0" placeholder="0.00" required />
+            </div>
+
+            <!-- Prioridad -->
+            <div class="form-group">
+              <label class="form-label" for="gasto_prioridad">Prioridad</label>
+              <select id="gasto_prioridad" class="form-select">
+                <option value="Baja">Baja</option>
+                <option value="Media" selected>Media</option>
+                <option value="Alta">Alta</option>
+                <option value="Urgente">Urgente</option>
+              </select>
+            </div>
+
           </div>
         </form>
       </div>
+
+      <div class="modal-footer">
+        <button class="btn-cancel" id="btn-cancel-new">Cancelar</button>
+        <button class="btn-save" id="btn-submit-new">
+          <span id="spinner-new" style="display:none;" class="loading-spinner" style="width:14px;height:14px;"></span>
+          Guardar Solicitud
+        </button>
+      </div>
+
     </div>
   </div>
 
-  <!-- Modal 2: Revisión / Aprobación / Ejecución -->
-  <div class="modal-overlay hidden" id="modal-review-expense">
-    <div class="modal-content modal-large">
+
+  <!-- ══════════════════════════════════════════════════════
+       MODAL 2 — Revisión / Aprobación / Cierre
+  ═══════════════════════════════════════════════════════════ -->
+  <div class="modal-overlay" id="modal-review-expense" role="dialog" aria-modal="true" aria-labelledby="review-title">
+    <div class="modal-panel modal-wide">
+
       <div class="modal-header">
-        <h2 id="review-title">Detalle de Gasto: TOB-GASTO-XXX</h2>
-        <button class="btn-close" id="btn-close-review">×</button>
-      </div>
-      <div class="modal-body review-layout">
-        
-        <!-- Columna de detalles (Solo lectura) -->
-        <div class="review-details">
-          <div class="status-banner" id="review-status-banner">
-            <span class="status-pill" id="review-status">Pendiente</span>
-          </div>
-          
-          <div class="detail-group">
-            <strong>Solicitante:</strong> <span id="detail-solicitante"></span> (<span id="detail-coordinacion"></span>)
-          </div>
-          <div class="detail-group">
-            <strong>Título:</strong> <span id="detail-titulo"></span>
-          </div>
-          <div class="detail-group">
-            <strong>Motivo:</strong> <p id="detail-motivo" class="detail-text"></p>
-          </div>
-          <div class="detail-grid">
-            <div class="detail-group"><strong>Categoría:</strong> <span id="detail-categoria"></span></div>
-            <div class="detail-group"><strong>Modalidad:</strong> <span id="detail-modalidad"></span></div>
-            <div class="detail-group"><strong>Monto Solicitado:</strong> <span id="detail-monto" class="highlight-monto"></span></div>
-            <div class="detail-group"><strong>Prioridad:</strong> <span id="detail-prioridad"></span></div>
-          </div>
-          <div class="detail-group" id="detail-evidencia-box">
-            <strong>Evidencia Inicial:</strong> <a href="#" id="detail-evidencia-link" target="_blank" class="btn-link">Ver Documento</a>
+        <div class="modal-header__left">
+          <div class="modal-icon" aria-hidden="true">📋</div>
+          <div>
+            <div class="modal-header__title" id="review-title">Detalle de Gasto</div>
+            <div class="modal-header__sub" id="review-subtitle">Revisión y acciones financieras</div>
           </div>
         </div>
+        <button class="btn-modal-close" id="btn-close-review" aria-label="Cerrar">✕</button>
+      </div>
 
-        <!-- Columna de Acciones -->
-        <div class="review-actions-panel">
-          
-          <!-- Panel para Administradores Financieros -->
-          <div id="admin-actions-panel" class="action-card hidden">
-            <h3>Acciones Financieras (Admin)</h3>
-            <div class="form-group">
-              <label>Actualizar Estado</label>
-              <select id="admin_update_status">
-                <option value="Pendiente">Pendiente</option>
-                <option value="Aprobado">Aprobado</option>
-                <option value="En proceso">En proceso</option>
-                <option value="Completado">Completado</option>
-                <option value="Rechazado">Rechazado</option>
-              </select>
+      <div class="modal-body">
+        <div class="review-layout">
+
+          <!-- Detalles (Solo Lectura) -->
+          <div class="review-details">
+            <div class="review-status-row">
+              <span class="status-pill" id="review-status">Pendiente</span>
+              <span class="review-code" id="review-code">TOB-GASTO-000</span>
             </div>
-            <button class="btn-primary full-width" id="btn-admin-save">Guardar Cambios</button>
+
+            <div class="detail-row">
+              <span class="detail-label">Solicitante</span>
+              <span class="detail-value" id="detail-solicitante">—</span>
+            </div>
+            <div class="detail-row">
+              <span class="detail-label">Coordinación</span>
+              <span class="detail-value" id="detail-coordinacion">—</span>
+            </div>
+            <div class="detail-row">
+              <span class="detail-label">Título</span>
+              <span class="detail-value" id="detail-titulo">—</span>
+            </div>
+            <div class="detail-row full-row">
+              <span class="detail-label">Motivo</span>
+              <p class="detail-value detail-motivo" id="detail-motivo">—</p>
+            </div>
+            <div class="detail-grid-2">
+              <div class="detail-row">
+                <span class="detail-label">Categoría</span>
+                <span class="detail-value" id="detail-categoria">—</span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-label">Modalidad</span>
+                <span class="detail-value" id="detail-modalidad">—</span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-label">Prioridad</span>
+                <span class="detail-value" id="detail-prioridad">—</span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-label">Monto Solicitado</span>
+                <span class="detail-value monto-highlight" id="detail-monto">—</span>
+              </div>
+            </div>
           </div>
 
-          <!-- Panel para Ejecución (Coordinadores / Cierre) -->
-          <div id="execution-actions-panel" class="action-card hidden">
-            <h3>Cierre de Gasto</h3>
-            <p class="form-hint">Sube tus fotos/facturas al Drive llenando el formulario oficial, y luego confirma aquí el cierre.</p>
-            
-            <div style="margin-bottom: 12px;">
-              <a href="https://docs.google.com/forms/d/e/1FAIpQLSeS-hobkALsXkgx_KF7lEJvkV0aJyvO1AyWhUaTksqH6HrXYQ/viewform?usp=publish-editor" target="_blank" class="btn-secondary" style="display:block; text-align:center; text-decoration:none;">
+          <!-- Acciones -->
+          <div class="review-actions">
+
+            <!-- Panel Admin -->
+            <div id="admin-actions-panel" class="action-panel hidden">
+              <div class="action-panel__title">⚙️ Acciones Financieras</div>
+              <div class="form-group">
+                <label class="form-label" for="admin_update_status">Actualizar Estado</label>
+                <select id="admin_update_status" class="form-select">
+                  <option value="Pendiente">⏳ Pendiente</option>
+                  <option value="Aprobado">✅ Aprobado</option>
+                  <option value="En proceso">🔄 En proceso</option>
+                  <option value="Completado">🎉 Completado</option>
+                  <option value="Rechazado">❌ Rechazado</option>
+                  <option value="Cancelado">🚫 Cancelado</option>
+                </select>
+              </div>
+              <button class="btn-save full-width" id="btn-admin-save">
+                <span id="spinner-admin" style="display:none;" class="loading-spinner"></span>
+                Guardar Cambios
+              </button>
+            </div>
+
+            <!-- Panel Cierre -->
+            <div id="execution-actions-panel" class="action-panel hidden">
+              <div class="action-panel__title">✅ Cierre de Gasto</div>
+              <p class="action-panel__hint">Primero sube las fotos/facturas al Drive, luego registra el monto final aquí.</p>
+              <a
+                href="https://docs.google.com/forms/d/e/1FAIpQLSeS-hobkALsXkgx_KF7lEJvkV0aJyvO1AyWhUaTksqH6HrXYQ/viewform?usp=publish-editor"
+                target="_blank"
+                class="btn-drive full-width"
+              >
                 📂 Abrir Google Form (Subir Fotos)
               </a>
+              <div class="form-group">
+                <label class="form-label" for="exec_monto_final">Monto Final Gastado (₡)</label>
+                <input id="exec_monto_final" type="number" class="form-input" step="0.01" placeholder="0.00" />
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="exec_comentarios">Comentarios</label>
+                <textarea id="exec_comentarios" class="form-input form-textarea" rows="2" placeholder="Observaciones finales..."></textarea>
+              </div>
+              <button class="btn-success full-width" id="btn-exec-save">
+                <span id="spinner-exec" style="display:none;" class="loading-spinner"></span>
+                Marcar como Completado
+              </button>
             </div>
 
-            <div class="form-group">
-              <label>Monto Final Gastado (₡)</label>
-              <input type="number" id="exec_monto_final" step="0.01" />
+            <!-- Sin permisos -->
+            <div id="readonly-panel" class="action-panel">
+              <div class="action-panel__title">🔒 Solo Lectura</div>
+              <p class="action-panel__hint">Solo los administradores financieros pueden aprobar o gestionar este gasto.</p>
             </div>
-            <div class="form-group">
-              <label>Comentarios</label>
-              <textarea id="exec_comentarios" rows="2"></textarea>
-            </div>
-            <button class="btn-success full-width" id="btn-exec-save">Marcar como Completado</button>
+
           </div>
-
         </div>
       </div>
+
     </div>
   </div>
 
+  <!-- Toast -->
+  <div class="toast" id="toast" role="alert" aria-live="polite"></div>
+
+  <!-- Scripts -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="assets/js/supabase-config.js"></script>
   <script src="assets/js/auth.js"></script>
   <script src="assets/js/global.js"></script>
   <script src="assets/js/gastos.js"></script>
+
 </body>
 </html>
