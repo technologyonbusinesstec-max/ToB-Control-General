@@ -324,26 +324,14 @@
             <!-- Panel Cierre -->
             <div id="execution-actions-panel" class="action-panel hidden">
               <div class="action-panel__title">✅ Cierre de Gasto</div>
-              <p class="action-panel__hint">Primero sube las fotos/facturas al Drive, luego registra el monto final aquí.</p>
+              <p class="action-panel__hint">Una vez realizado el gasto, llena el formulario oficial para registrar las facturas y evidencias en Drive.</p>
               <a
                 href="https://docs.google.com/forms/d/e/1FAIpQLSeS-hobkALsXkgx_KF7lEJvkV0aJyvO1AyWhUaTksqH6HrXYQ/viewform?usp=publish-editor"
                 target="_blank"
                 class="btn-drive full-width"
               >
-                📂 Abrir Google Form (Subir Fotos)
+                📂 Abrir Google Form (Registrar Evidencias)
               </a>
-              <div class="form-group">
-                <label class="form-label" for="exec_monto_final">Monto Final Gastado (₡)</label>
-                <input id="exec_monto_final" type="number" class="form-input" step="0.01" placeholder="0.00" />
-              </div>
-              <div class="form-group">
-                <label class="form-label" for="exec_comentarios">Comentarios</label>
-                <textarea id="exec_comentarios" class="form-input form-textarea" rows="2" placeholder="Observaciones finales..."></textarea>
-              </div>
-              <button class="btn-success full-width" id="btn-exec-save">
-                <span id="spinner-exec" style="display:none;" class="loading-spinner"></span>
-                Marcar como Completado
-              </button>
             </div>
 
             <!-- Sin permisos -->
