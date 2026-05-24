@@ -64,7 +64,6 @@ document.addEventListener('DOMContentLoaded', async () => {
   modalReview.addEventListener('click', e => { if (e.target === modalReview) closeModal(modalReview); });
 
   document.getElementById('btn-admin-save').addEventListener('click', updateExpenseStatus);
-  document.getElementById('btn-exec-save').addEventListener('click', closeExpenseExecution);
 
   // ── Helpers: Modals ──────────────────────────────────────────
   function openModal(modal) { modal.classList.add('open'); }
@@ -164,9 +163,9 @@ document.addEventListener('DOMContentLoaded', async () => {
       .filter(g => ['Aprobado','En proceso','Completado'].includes(g.estado))
       .reduce((s, g) => s + Number(g.monto_final || g.monto_estimado), 0);
 
-    const PRESUPUESTO = 5000000;
-    kpiGastos.textContent     = `₡${totalAprobado.toLocaleString('es-CR')}`;
-    kpiDisponible.textContent = `₡${(PRESUPUESTO - totalAprobado).toLocaleString('es-CR')}`;
+    kpiGastos.textContent = `₡${totalAprobado.toLocaleString('es-CR')}`;
+    // kpiDisponible: por definir cuando se establezca el presupuesto total
+    if (kpiDisponible) kpiDisponible.closest('.kpi-item').style.display = 'none';
   }
 
   // ── Generar Código Único ─────────────────────────────────────
@@ -228,49 +227,53 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (!g) return;
     currentExpense = g;
 
+    const setText = (elId, text) => {
+      const el = document.getElementById(elId);
+      if (el) el.textContent = text ?? '—';
+    };
+
     // Llenar encabezado
-    document.getElementById('review-title').textContent    = `Gasto: ${g.codigo_unico}`;
-    document.getElementById('review-subtitle').textContent = `${g.categoria} — ${g.modalidad}`;
-    document.getElementById('review-code').textContent     = g.codigo_unico;
+    setText('review-title', `Gasto: ${g.codigo_unico}`);
+    setText('review-subtitle', `${g.categoria} — ${g.modalidad}`);
+    setText('review-code', g.codigo_unico);
 
     // Estado pill
     const pill = document.getElementById('review-status');
-    pill.textContent = g.estado;
-    pill.className = `status-pill ${(g.estado || 'pendiente').toLowerCase().replace(' ', '-')}`;
+    if (pill) {
+      pill.textContent = g.estado;
+      pill.className = `status-pill ${(g.estado || 'pendiente').toLowerCase().replace(' ', '-')}`;
+    }
 
     // Detalles
-    document.getElementById('detail-solicitante').textContent  = g.nombre_completo;
-    document.getElementById('detail-coordinacion').textContent = g.coordinacion;
-    document.getElementById('detail-titulo').textContent       = g.titulo;
-    document.getElementById('detail-motivo').textContent       = g.descripcion;
-    document.getElementById('detail-categoria').textContent    = g.categoria;
-    document.getElementById('detail-modalidad').textContent    = g.modalidad;
-    document.getElementById('detail-prioridad').textContent    = g.prioridad;
-    document.getElementById('detail-monto').textContent        = `₡${Number(g.monto_estimado).toLocaleString('es-CR')}`;
+    setText('detail-solicitante', g.nombre_completo);
+    setText('detail-coordinacion', g.coordinacion);
+    setText('detail-titulo', g.titulo);
+    setText('detail-motivo', g.descripcion);
+    setText('detail-categoria', g.categoria);
+    setText('detail-modalidad', g.modalidad);
+    setText('detail-prioridad', g.prioridad);
+    setText('detail-monto', `₡${Number(g.monto_estimado).toLocaleString('es-CR')}`);
 
     // Paneles de acción
-    const adminPanel   = document.getElementById('admin-actions-panel');
-    const execPanel    = document.getElementById('execution-actions-panel');
+    const adminPanel    = document.getElementById('admin-actions-panel');
+    const execPanel     = document.getElementById('execution-actions-panel');
     const readonlyPanel = document.getElementById('readonly-panel');
 
-    adminPanel.classList.add('hidden');
-    execPanel.classList.add('hidden');
-    readonlyPanel.classList.add('hidden');
+    [adminPanel, execPanel, readonlyPanel].forEach(panel => panel?.classList.add('hidden'));
 
-    if (isAdmin) {
+    if (isAdmin && adminPanel) {
       adminPanel.classList.remove('hidden');
-      document.getElementById('admin_update_status').value = g.estado;
+      const statusSelect = document.getElementById('admin_update_status');
+      if (statusSelect) statusSelect.value = g.estado;
     }
 
     const canClose = (g.estado === 'Aprobado' || g.estado === 'En proceso') &&
                      (isAdmin || g.solicitante_id === currentUser.id);
-    if (canClose) {
+    if (canClose && execPanel) {
       execPanel.classList.remove('hidden');
-      document.getElementById('exec_monto_final').value = '';
-      document.getElementById('exec_comentarios').value = '';
     }
 
-    if (!isAdmin && !canClose) {
+    if (!isAdmin && !canClose && readonlyPanel) {
       readonlyPanel.classList.remove('hidden');
     }
 
@@ -316,43 +319,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     } catch (err) {
       console.error(err);
       showToast('Error al actualizar el estado.', 'error');
-    } finally {
-      btn.disabled = false;
-      spinner.style.display = 'none';
-    }
-  }
-
-  // ── Cierre de Gasto ───────────────────────────────────────────
-  async function closeExpenseExecution() {
-    if (!currentExpense) return;
-
-    const btn = document.getElementById('btn-exec-save');
-    const spinner = document.getElementById('spinner-exec');
-    btn.disabled = true;
-    spinner.style.display = 'inline-block';
-
-    try {
-      const montoFinal = parseFloat(document.getElementById('exec_monto_final').value) || currentExpense.monto_estimado;
-      const comentarios = document.getElementById('exec_comentarios').value.trim();
-
-      const { error } = await db.from('gastos')
-        .update({
-          estado:             'Completado',
-          monto_final:        montoFinal,
-          comentarios_finales: comentarios,
-          fecha_realizacion:  new Date().toISOString()
-        })
-        .eq('id', currentExpense.id);
-
-      if (error) throw error;
-
-      closeModal(modalReview);
-      showToast(`🎉 Gasto ${currentExpense.codigo_unico} marcado como Completado.`);
-      await fetchGastos();
-
-    } catch (err) {
-      console.error(err);
-      showToast('Error al cerrar el gasto.', 'error');
     } finally {
       btn.disabled = false;
       spinner.style.display = 'none';
