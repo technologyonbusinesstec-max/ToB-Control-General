@@ -5,423 +5,358 @@
 
 document.addEventListener('DOMContentLoaded', async () => {
   const db = window._supabaseClient;
-  if (!db) {
-    console.error('Supabase no está inicializado.');
-    return;
-  }
+  if (!db) { console.error('Supabase no está inicializado.'); return; }
 
-  // Elementos DOM principales
-  const tbody = document.getElementById('gastos-tbody');
+  // DOM
+  const tbody       = document.getElementById('gastos-tbody');
   const searchInput = document.getElementById('search-gastos');
   const filterSelect = document.getElementById('filter-estado');
-  
-  // KPIs
-  const kpiGastos = document.getElementById('kpi-gastos');
+  const kpiGastos   = document.getElementById('kpi-gastos');
   const kpiDisponible = document.getElementById('kpi-disponible');
-  
-  // Modals
-  const modalNew = document.getElementById('modal-new-expense');
-  const modalReview = document.getElementById('modal-review-expense');
-  const btnNew = document.getElementById('btn-new-expense');
-  
-  // Configuración del Administrador Principal
-  const ADMIN_WHATSAPP = '50661515240'; // Reemplazar con el número real de los administradores
+  const toast       = document.getElementById('toast');
 
-  // Variables globales
+  // Modals
+  const modalNew    = document.getElementById('modal-new-expense');
+  const modalReview = document.getElementById('modal-review-expense');
+
+  // Número admin para WhatsApp (Andrey/Abril)
+  const ADMIN_WHATSAPP = '50661515240';
+
+  // State
   let currentUser = null;
   let isAdmin = false;
   let allExpenses = [];
-  let currentExpenseReview = null;
+  let currentExpense = null;
 
-  // 1. Inicialización de Sesión
+  // ── Sesión ──────────────────────────────────────────────────
   const { data: { session } } = await db.auth.getSession();
-  if (session && session.user) {
-    currentUser = session.user;
-    // Determinamos si es Admin Financiero (Andrey o Abril) de forma básica por correo
-    const email = currentUser.email.toLowerCase();
-    isAdmin = email.includes('andrey') || email.includes('abril') || email.includes('admin');
-  } else {
-    // Si no hay sesión, se manejará por auth.js, pero detenemos aquí
-    return;
-  }
+  if (!session?.user) return;
+  currentUser = session.user;
+  const email = currentUser.email.toLowerCase();
+  isAdmin = ['andrey', 'abril', 'figueroa', 'admin'].some(k => email.includes(k));
 
-  // 2. Carga inicial de datos
+  // ── Carga inicial ────────────────────────────────────────────
   await fetchGastos();
 
-  // ==========================================
-  // EVENT LISTENERS: BUSCADOR Y FILTROS
-  // ==========================================
+  // ── Event Listeners: Filtros ─────────────────────────────────
   searchInput.addEventListener('input', renderTable);
   filterSelect.addEventListener('change', renderTable);
 
-  // ==========================================
-  // EVENT LISTENERS: MODAL NUEVA SOLICITUD
-  // ==========================================
-  btnNew.addEventListener('click', () => {
+  // ── Event Listeners: Modal Nueva Solicitud ───────────────────
+  document.getElementById('btn-new-expense').addEventListener('click', () => {
     document.getElementById('form-new-expense').reset();
-    modalNew.classList.remove('hidden');
+    openModal(modalNew);
   });
 
-  document.getElementById('btn-close-new').addEventListener('click', () => {
-    modalNew.classList.add('hidden');
-  });
+  document.getElementById('btn-close-new').addEventListener('click', () => closeModal(modalNew));
+  document.getElementById('btn-cancel-new').addEventListener('click', () => closeModal(modalNew));
 
-  document.getElementById('btn-cancel-new').addEventListener('click', () => {
-    modalNew.classList.add('hidden');
-  });
-
-  document.getElementById('form-new-expense').addEventListener('submit', async (e) => {
-    e.preventDefault();
+  document.getElementById('btn-submit-new').addEventListener('click', async () => {
+    const form = document.getElementById('form-new-expense');
+    if (!form.checkValidity()) { form.reportValidity(); return; }
     await submitNewExpense();
   });
 
-  // ==========================================
-  // EVENT LISTENERS: MODAL REVISIÓN
-  // ==========================================
-  document.getElementById('btn-close-review').addEventListener('click', () => {
-    modalReview.classList.add('hidden');
-  });
+  modalNew.addEventListener('click', e => { if (e.target === modalNew) closeModal(modalNew); });
 
-  document.getElementById('btn-admin-save').addEventListener('click', async () => {
-    await updateExpenseStatus();
-  });
+  // ── Event Listeners: Modal Revisión ──────────────────────────
+  document.getElementById('btn-close-review').addEventListener('click', () => closeModal(modalReview));
+  modalReview.addEventListener('click', e => { if (e.target === modalReview) closeModal(modalReview); });
 
-  document.getElementById('btn-exec-save').addEventListener('click', async () => {
-    await closeExpenseExecution();
-  });
+  document.getElementById('btn-admin-save').addEventListener('click', updateExpenseStatus);
+  document.getElementById('btn-exec-save').addEventListener('click', closeExpenseExecution);
 
+  // ── Helpers: Modals ──────────────────────────────────────────
+  function openModal(modal) { modal.classList.add('open'); }
+  function closeModal(modal) { modal.classList.remove('open'); }
 
-  // ==========================================
-  // Función auxiliar para enviar notificaciones
-  // Función para abrir WhatsApp manualmente con mensajes predefinidos
-  function openWhatsAppManual(type, data) {
-    let phone = '';
-    let text = '';
-
-    if (type === 'NUEVO_GASTO') {
-      phone = ADMIN_WHATSAPP;
-      text = `Hola, se ha registrado una nueva solicitud de gasto.\n\n*Código:* ${data.codigo_unico}\n*Solicitante:* ${data.nombre_completo}\n*Monto:* ₡${data.monto_estimado}\n*Categoría:* ${data.categoria}`;
-      
-      if (confirm('¿Deseas enviar un mensaje de WhatsApp a Finanzas (Andrey/Abril) notificando este gasto?')) {
-        window.open(`https://wa.me/${phone}?text=${encodeURIComponent(text)}`, '_blank');
-      }
-    } 
-    else if (type === 'ESTADO_ACTUALIZADO') {
-      // Necesita que el coordinador haya puesto su teléfono, le agregamos 506 si no lo tiene.
-      // Quitar espacios o guiones del teléfono
-      phone = (data.telefono || '').replace(/\D/g, ''); 
-      if (!phone.startsWith('506') && phone.length === 8) phone = '506' + phone;
-
-      text = `Hola ${data.solicitante}, tu solicitud de gasto *${data.codigo_unico}* ha sido *${data.estado}* por Finanzas.`;
-      
-      if (phone && confirm('¿Deseas notificar al coordinador por WhatsApp sobre esta actualización?')) {
-        window.open(`https://wa.me/${phone}?text=${encodeURIComponent(text)}`, '_blank');
-      } else if (!phone) {
-        alert('El coordinador no proporcionó un número de teléfono válido para notificar.');
-      }
-    }
+  // ── Helper: Toast ────────────────────────────────────────────
+  function showToast(msg, type = 'success') {
+    toast.textContent = msg;
+    toast.className = `toast show ${type}`;
+    setTimeout(() => { toast.className = 'toast'; }, 3000);
   }
 
-  // Obtener gastos de la base de datos
+  // ── SUPABASE: Fetch ──────────────────────────────────────────
   async function fetchGastos() {
-    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;">Cargando gastos...</td></tr>';
-    
+    tbody.innerHTML = `<tr class="loading-row"><td colspan="7"><span class="loading-spinner"></span> Cargando gastos...</td></tr>`;
+
     const { data, error } = await db
       .from('gastos')
       .select('*')
       .order('created_at', { ascending: false });
 
     if (error) {
-      console.error('Error cargando gastos:', error);
-      // Si la tabla no existe aún, mostramos datos de prueba o vacío
       if (error.code === '42P01') {
-         tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--accent-red);">La tabla "gastos" no existe en Supabase aún. Por favor ejecuta el script SQL.</td></tr>';
+        tbody.innerHTML = `<tr class="loading-row"><td colspan="7" style="color:var(--accent-red);">⚠️ La tabla "gastos" no existe. Por favor ejecuta el script SQL en Supabase.</td></tr>`;
       } else {
-         tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;">Error cargando datos.</td></tr>';
+        tbody.innerHTML = `<tr class="loading-row"><td colspan="7">Error al cargar datos.</td></tr>`;
       }
+      console.error(error);
       return;
     }
 
     allExpenses = data || [];
     renderTable();
+    updateStats();
     calculateKPIs();
   }
 
-  // Renderizar la tabla de datos
+  // ── Render Tabla ─────────────────────────────────────────────
   function renderTable() {
-    const searchTerm = searchInput.value.toLowerCase();
-    const filterStatus = filterSelect.value;
+    const search = searchInput.value.toLowerCase();
+    const status = filterSelect.value;
 
     const filtered = allExpenses.filter(g => {
-      const matchSearch = 
-        (g.codigo_unico || '').toLowerCase().includes(searchTerm) ||
-        (g.nombre_completo || '').toLowerCase().includes(searchTerm) ||
-        (g.categoria || '').toLowerCase().includes(searchTerm) ||
-        (g.titulo || '').toLowerCase().includes(searchTerm);
-        
-      const matchStatus = filterStatus === 'todos' || g.estado === filterStatus;
-      
+      const matchSearch =
+        (g.codigo_unico   || '').toLowerCase().includes(search) ||
+        (g.nombre_completo|| '').toLowerCase().includes(search) ||
+        (g.categoria      || '').toLowerCase().includes(search) ||
+        (g.titulo         || '').toLowerCase().includes(search);
+      const matchStatus = status === 'todos' || g.estado === status;
       return matchSearch && matchStatus;
     });
 
     if (filtered.length === 0) {
-      tbody.innerHTML = '<tr class="empty-state"><td colspan="7">No se encontraron gastos con esos filtros.</td></tr>';
+      tbody.innerHTML = `<tr class="loading-row"><td colspan="7">No se encontraron gastos con esos filtros.</td></tr>`;
       return;
     }
 
     tbody.innerHTML = '';
     filtered.forEach(g => {
-      const tr = document.createElement('tr');
-      
-      // Determinar clase de estado
       const stateClass = (g.estado || 'pendiente').toLowerCase().replace(' ', '-');
-      
-      // Fecha formateada
       const dateStr = new Date(g.created_at).toLocaleDateString('es-CR', { day: '2-digit', month: 'short', year: 'numeric' });
+      const monto = Number(g.monto_estimado).toLocaleString('es-CR');
 
+      const tr = document.createElement('tr');
       tr.innerHTML = `
-        <td style="font-weight:600; font-family:'Outfit', sans-serif;">${g.codigo_unico}</td>
-        <td style="color:var(--text-secondary); font-size:13px;">${dateStr}</td>
-        <td>${g.nombre_completo}</td>
-        <td>${g.categoria}</td>
-        <td style="font-weight:600;">₡${Number(g.monto_estimado).toLocaleString('es-CR')}</td>
         <td><span class="status-pill ${stateClass}">${g.estado}</span></td>
+        <td><span class="cell-codigo">${g.codigo_unico}</span></td>
+        <td>${g.nombre_completo}</td>
         <td>
-          <button class="btn-action" data-id="${g.id}">Ver Detalles</button>
+          <div style="font-weight:600;">${g.categoria}</div>
+          <div style="font-size:11px;color:var(--text-muted);">${g.modalidad}</div>
+        </td>
+        <td style="font-weight:700;">₡${monto}</td>
+        <td style="color:var(--text-muted);font-size:12px;">${dateStr}</td>
+        <td>
+          <button class="action-btn" data-id="${g.id}">Ver Detalles →</button>
         </td>
       `;
       tbody.appendChild(tr);
     });
 
-    // Agregar listeners a los botones de "Ver Detalles"
-    document.querySelectorAll('.btn-action').forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        const id = e.target.getAttribute('data-id');
-        openReviewModal(id);
-      });
+    document.querySelectorAll('.action-btn').forEach(btn => {
+      btn.addEventListener('click', e => openReviewModal(e.currentTarget.dataset.id));
     });
   }
 
-  // Calcular y actualizar KPIs
-  function calculateKPIs() {
-    const totalAprobadoYCompletado = allExpenses
-      .filter(g => g.estado === 'Aprobado' || g.estado === 'En proceso' || g.estado === 'Completado')
-      .reduce((sum, g) => sum + Number(g.monto_final || g.monto_estimado), 0);
-
-    kpiGastos.textContent = `₡${totalAprobadoYCompletado.toLocaleString('es-CR')}`;
-    
-    // Si hubiera un presupuesto total, aquí calcularíamos el disponible.
-    // Ejemplo: Presupuesto Total = 5,000,000
-    const PRESUPUESTO_TOTAL = 5000000;
-    const disponible = PRESUPUESTO_TOTAL - totalAprobadoYCompletado;
-    kpiDisponible.textContent = `₡${disponible.toLocaleString('es-CR')}`;
+  // ── Estadísticas ─────────────────────────────────────────────
+  function updateStats() {
+    document.getElementById('stat-total').textContent       = allExpenses.length;
+    document.getElementById('stat-aprobados').textContent   = allExpenses.filter(g => g.estado === 'Aprobado').length;
+    document.getElementById('stat-pendientes').textContent  = allExpenses.filter(g => g.estado === 'Pendiente').length;
+    document.getElementById('stat-completados').textContent = allExpenses.filter(g => g.estado === 'Completado').length;
   }
 
-  // Enviar nueva solicitud de gasto
+  function calculateKPIs() {
+    const totalAprobado = allExpenses
+      .filter(g => ['Aprobado','En proceso','Completado'].includes(g.estado))
+      .reduce((s, g) => s + Number(g.monto_final || g.monto_estimado), 0);
+
+    const PRESUPUESTO = 5000000;
+    kpiGastos.textContent     = `₡${totalAprobado.toLocaleString('es-CR')}`;
+    kpiDisponible.textContent = `₡${(PRESUPUESTO - totalAprobado).toLocaleString('es-CR')}`;
+  }
+
+  // ── Generar Código Único ─────────────────────────────────────
+  function generateCode() {
+    const n = allExpenses.length + 1;
+    return `TOB-GASTO-${n.toString().padStart(3, '0')}`;
+  }
+
+  // ── Submit Nueva Solicitud ───────────────────────────────────
   async function submitNewExpense() {
-    const btnSubmit = document.querySelector('#form-new-expense button[type="submit"]');
-    const originalText = btnSubmit.textContent;
-    btnSubmit.textContent = 'Enviando...';
-    btnSubmit.disabled = true;
+    const btn = document.getElementById('btn-submit-new');
+    const spinner = document.getElementById('spinner-new');
+    btn.disabled = true;
+    spinner.style.display = 'inline-block';
 
     try {
-      // 1. Generar Código Único
-      const count = allExpenses.length + 1;
-      const codigoUnico = `TOB-GASTO-${count.toString().padStart(3, '0')}`;
+      const codigoUnico = generateCode();
 
-      // 2. Subir archivo (si hay)
-      let fileUrl = null;
-      const fileInput = document.getElementById('gasto_evidencia_solicitud');
-      if (fileInput.files.length > 0) {
-        const file = fileInput.files[0];
-        const fileName = `${codigoUnico}_${Date.now()}_${file.name}`;
-        
-        const { data: uploadData, error: uploadError } = await db.storage
-          .from('gastos_evidencia')
-          .upload(fileName, file);
-          
-        if (uploadError) throw uploadError;
-        
-        // Obtener URL pública
-        const { data: { publicUrl } } = db.storage
-          .from('gastos_evidencia')
-          .getPublicUrl(fileName);
-          
-        fileUrl = publicUrl;
-      }
-
-      // 3. Insertar en Base de Datos
       const newExpense = {
-        codigo_unico: codigoUnico,
-        solicitante_id: currentUser.id,
-        nombre_completo: document.getElementById('solicitante_nombre').value,
-        coordinacion: document.getElementById('solicitante_coordinacion').value,
-        telefono: document.getElementById('solicitante_telefono').value,
-        titulo: document.getElementById('gasto_titulo').value,
-        descripcion: document.getElementById('gasto_descripcion').value,
-        categoria: document.getElementById('gasto_categoria').value,
-        modalidad: document.getElementById('gasto_modalidad').value,
-        monto_estimado: parseFloat(document.getElementById('gasto_monto').value),
-        prioridad: document.getElementById('gasto_prioridad').value,
-        evidencia_solicitud: fileUrl,
-        estado: 'Pendiente'
+        codigo_unico:    codigoUnico,
+        solicitante_id:  currentUser.id,
+        nombre_completo: document.getElementById('solicitante_nombre').value.trim(),
+        coordinacion:    document.getElementById('solicitante_coordinacion').value.trim(),
+        telefono:        document.getElementById('solicitante_telefono').value.trim(),
+        titulo:          document.getElementById('gasto_titulo').value.trim(),
+        descripcion:     document.getElementById('gasto_descripcion').value.trim(),
+        categoria:       document.getElementById('gasto_categoria').value,
+        modalidad:       document.getElementById('gasto_modalidad').value,
+        monto_estimado:  parseFloat(document.getElementById('gasto_monto').value),
+        prioridad:       document.getElementById('gasto_prioridad').value,
+        estado:          'Pendiente'
       };
 
       const { error } = await db.from('gastos').insert([newExpense]);
       if (error) throw error;
 
-      // Éxito
-      alert(`✅ Solicitud registrada con éxito.\nCódigo: ${codigoUnico}`);
-      modalNew.classList.add('hidden');
-      await fetchGastos(); // Recargar tabla
-      
-      // Enviar Notificación (Abre WhatsApp)
-      openWhatsAppManual('NUEVO_GASTO', newExpense);
+      closeModal(modalNew);
+      showToast(`✅ Solicitud ${codigoUnico} registrada exitosamente.`);
+      await fetchGastos();
 
-    } catch (error) {
-      console.error('Error registrando gasto:', error);
-      alert('Hubo un error al registrar el gasto. Revisa la consola para más detalles.');
+      // WhatsApp a administradores
+      const text = `Hola, nueva solicitud de gasto registrada en el sistema ToB 2026.\n\n*Código:* ${codigoUnico}\n*Solicitante:* ${newExpense.nombre_completo}\n*Monto:* ₡${newExpense.monto_estimado.toLocaleString('es-CR')}\n*Categoría:* ${newExpense.categoria}`;
+      if (confirm('¿Deseas notificar a Finanzas (Andrey/Abril) por WhatsApp?')) {
+        window.open(`https://wa.me/${ADMIN_WHATSAPP}?text=${encodeURIComponent(text)}`, '_blank');
+      }
+
+    } catch (err) {
+      console.error(err);
+      showToast('Error al registrar la solicitud.', 'error');
     } finally {
-      btnSubmit.textContent = originalText;
-      btnSubmit.disabled = false;
+      btn.disabled = false;
+      spinner.style.display = 'none';
     }
   }
 
-  // Abrir Modal de Revisión
+  // ── Abrir Modal de Revisión ───────────────────────────────────
   function openReviewModal(id) {
     const g = allExpenses.find(x => x.id === id);
     if (!g) return;
-    
-    currentExpenseReview = g;
+    currentExpense = g;
 
-    // Llenar detalles
-    document.getElementById('review-title').textContent = `Detalle de Gasto: ${g.codigo_unico}`;
-    document.getElementById('detail-solicitante').textContent = g.nombre_completo;
+    // Llenar encabezado
+    document.getElementById('review-title').textContent    = `Gasto: ${g.codigo_unico}`;
+    document.getElementById('review-subtitle').textContent = `${g.categoria} — ${g.modalidad}`;
+    document.getElementById('review-code').textContent     = g.codigo_unico;
+
+    // Estado pill
+    const pill = document.getElementById('review-status');
+    pill.textContent = g.estado;
+    pill.className = `status-pill ${(g.estado || 'pendiente').toLowerCase().replace(' ', '-')}`;
+
+    // Detalles
+    document.getElementById('detail-solicitante').textContent  = g.nombre_completo;
     document.getElementById('detail-coordinacion').textContent = g.coordinacion;
-    document.getElementById('detail-titulo').textContent = g.titulo;
-    document.getElementById('detail-motivo').textContent = g.descripcion;
-    document.getElementById('detail-categoria').textContent = g.categoria;
-    document.getElementById('detail-modalidad').textContent = g.modalidad;
-    document.getElementById('detail-monto').textContent = `₡${Number(g.monto_estimado).toLocaleString('es-CR')}`;
-    document.getElementById('detail-prioridad').textContent = g.prioridad;
-    
-    const statusPill = document.getElementById('review-status');
-    statusPill.textContent = g.estado;
-    statusPill.className = `status-pill ${(g.estado || 'pendiente').toLowerCase().replace(' ', '-')}`;
+    document.getElementById('detail-titulo').textContent       = g.titulo;
+    document.getElementById('detail-motivo').textContent       = g.descripcion;
+    document.getElementById('detail-categoria').textContent    = g.categoria;
+    document.getElementById('detail-modalidad').textContent    = g.modalidad;
+    document.getElementById('detail-prioridad').textContent    = g.prioridad;
+    document.getElementById('detail-monto').textContent        = `₡${Number(g.monto_estimado).toLocaleString('es-CR')}`;
 
-    // Evidencia
-    const evBox = document.getElementById('detail-evidencia-box');
-    if (g.evidencia_solicitud) {
-      evBox.style.display = 'block';
-      document.getElementById('detail-evidencia-link').href = g.evidencia_solicitud;
-    } else {
-      evBox.style.display = 'none';
-    }
+    // Paneles de acción
+    const adminPanel   = document.getElementById('admin-actions-panel');
+    const execPanel    = document.getElementById('execution-actions-panel');
+    const readonlyPanel = document.getElementById('readonly-panel');
 
-    // Control de Paneles de Acción
-    const adminPanel = document.getElementById('admin-actions-panel');
-    const execPanel = document.getElementById('execution-actions-panel');
-    
     adminPanel.classList.add('hidden');
     execPanel.classList.add('hidden');
+    readonlyPanel.classList.add('hidden');
 
-    // Lógica de Permisos
     if (isAdmin) {
       adminPanel.classList.remove('hidden');
       document.getElementById('admin_update_status').value = g.estado;
     }
 
-    // Si está Aprobado o En proceso, el solicitante (o admin) puede marcarlo como completado
-    if ((g.estado === 'Aprobado' || g.estado === 'En proceso') && (isAdmin || g.solicitante_id === currentUser.id)) {
+    const canClose = (g.estado === 'Aprobado' || g.estado === 'En proceso') &&
+                     (isAdmin || g.solicitante_id === currentUser.id);
+    if (canClose) {
       execPanel.classList.remove('hidden');
+      document.getElementById('exec_monto_final').value = '';
+      document.getElementById('exec_comentarios').value = '';
     }
 
-    modalReview.classList.remove('hidden');
+    if (!isAdmin && !canClose) {
+      readonlyPanel.classList.remove('hidden');
+    }
+
+    openModal(modalReview);
   }
 
-  // Administrador actualiza estado
+  // ── Admin: Actualizar Estado ──────────────────────────────────
   async function updateExpenseStatus() {
-    if (!currentExpenseReview || !isAdmin) return;
-    
-    const btnSave = document.getElementById('btn-admin-save');
-    btnSave.textContent = 'Guardando...';
-    btnSave.disabled = true;
+    if (!currentExpense || !isAdmin) return;
+
+    const btn = document.getElementById('btn-admin-save');
+    const spinner = document.getElementById('spinner-admin');
+    btn.disabled = true;
+    spinner.style.display = 'inline-block';
 
     const nuevoEstado = document.getElementById('admin_update_status').value;
 
     try {
       const { error } = await db.from('gastos')
-        .update({ 
-          estado: nuevoEstado,
-          aprobado_por: currentUser.id,
+        .update({
+          estado:           nuevoEstado,
+          aprobado_por:     currentUser.id,
           fecha_aprobacion: new Date().toISOString()
         })
-        .eq('id', currentExpenseReview.id);
+        .eq('id', currentExpense.id);
 
       if (error) throw error;
-      
-      alert(`Estado actualizado a: ${nuevoEstado}`);
-      modalReview.classList.add('hidden');
+
+      closeModal(modalReview);
+      showToast(`Estado actualizado a: ${nuevoEstado}`);
       await fetchGastos();
-      
-      // Notificar si fue aprobado o rechazado (Abre WhatsApp)
-      if (nuevoEstado === 'Aprobado' || nuevoEstado === 'Rechazado') {
-        openWhatsAppManual('ESTADO_ACTUALIZADO', {
-          codigo_unico: currentExpenseReview.codigo_unico,
-          solicitante: currentExpenseReview.nombre_completo,
-          telefono: currentExpenseReview.telefono,
-          estado: nuevoEstado
-        });
+
+      // WhatsApp al coordinador si aplica
+      if (['Aprobado','Rechazado'].includes(nuevoEstado)) {
+        let phone = (currentExpense.telefono || '').replace(/\D/g, '');
+        if (phone.length === 8) phone = '506' + phone;
+        const text = `Hola ${currentExpense.nombre_completo}, tu solicitud *${currentExpense.codigo_unico}* fue *${nuevoEstado}* por Finanzas ToB 2026.`;
+        if (phone && confirm(`¿Notificar a ${currentExpense.nombre_completo} por WhatsApp?`)) {
+          window.open(`https://wa.me/${phone}?text=${encodeURIComponent(text)}`, '_blank');
+        }
       }
 
-    } catch (error) {
-      console.error('Error actualizando estado:', error);
-      alert('Error al actualizar el estado.');
+    } catch (err) {
+      console.error(err);
+      showToast('Error al actualizar el estado.', 'error');
     } finally {
-      btnSave.textContent = 'Guardar Cambios';
-      btnSave.disabled = false;
+      btn.disabled = false;
+      spinner.style.display = 'none';
     }
   }
 
-  // Cierre de gasto (Ejecución)
+  // ── Cierre de Gasto ───────────────────────────────────────────
   async function closeExpenseExecution() {
-    if (!currentExpenseReview) return;
-    
-    const btnSave = document.getElementById('btn-exec-save');
-    btnSave.textContent = 'Procesando...';
-    btnSave.disabled = true;
+    if (!currentExpense) return;
+
+    const btn = document.getElementById('btn-exec-save');
+    const spinner = document.getElementById('spinner-exec');
+    btn.disabled = true;
+    spinner.style.display = 'inline-block';
 
     try {
-      const montoFinal = parseFloat(document.getElementById('exec_monto_final').value);
-      const comentarios = document.getElementById('exec_comentarios').value;
-      
-      // La factura ahora se sube por Google Forms, por lo que no la procesamos aquí en Supabase Storage.
-      // Puedes guardar el link del Google Form si quisieras, pero de momento solo actualizamos estado.
+      const montoFinal = parseFloat(document.getElementById('exec_monto_final').value) || currentExpense.monto_estimado;
+      const comentarios = document.getElementById('exec_comentarios').value.trim();
 
-      // Actualizar Base de datos
       const { error } = await db.from('gastos')
-        .update({ 
-          estado: 'Completado',
-          monto_final: montoFinal || currentExpenseReview.monto_estimado,
+        .update({
+          estado:             'Completado',
+          monto_final:        montoFinal,
           comentarios_finales: comentarios,
-          fecha_realizacion: new Date().toISOString()
+          fecha_realizacion:  new Date().toISOString()
         })
-        .eq('id', currentExpenseReview.id);
+        .eq('id', currentExpense.id);
 
       if (error) throw error;
-      
-      alert('Gasto marcado como COMPLETADO exitosamente.');
-      modalReview.classList.add('hidden');
-      await fetchGastos();
-      
-      // Ya no notificamos automáticamente aquí, pero se podría llamar a openWhatsAppManual si se deseara.
 
-    } catch (error) {
-      console.error('Error al cerrar gasto:', error);
-      alert('Error al cerrar el gasto.');
+      closeModal(modalReview);
+      showToast(`🎉 Gasto ${currentExpense.codigo_unico} marcado como Completado.`);
+      await fetchGastos();
+
+    } catch (err) {
+      console.error(err);
+      showToast('Error al cerrar el gasto.', 'error');
     } finally {
-      btnSave.textContent = 'Marcar como Completado';
-      btnSave.disabled = false;
+      btn.disabled = false;
+      spinner.style.display = 'none';
     }
   }
+
 });
