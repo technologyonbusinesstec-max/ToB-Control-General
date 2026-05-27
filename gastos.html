@@ -78,13 +78,15 @@
       <div class="gastos-toolbar">
         <div class="search-wrap">
           <input
-            type="search"
+            type="text"
             id="search-gastos"
             name="gastos-search-field"
             class="gastos-search"
             placeholder="Buscar por código, solicitante o categoría..."
             aria-label="Buscar gastos"
             autocomplete="off"
+            data-form-type="other"
+            data-lpignore="true"
           />
         </div>
         <select class="gastos-filter" id="filter-estado" aria-label="Filtrar por estado">
@@ -364,7 +366,11 @@
         
         <div class="form-group" style="width: 100%; text-align: left; margin-top: 4px;">
           <label class="form-label" for="discard-password">Contraseña *</label>
-          <input id="discard-password" type="password" class="form-input" placeholder="Ingresá tu contraseña para confirmar" required />
+          <!-- Anti-autofill dummy inputs -->
+          <input type="text" style="position:absolute; top:-9999px; left:-9999px;" tabindex="-1" aria-hidden="true" autocomplete="username" />
+          <input type="password" style="position:absolute; top:-9999px; left:-9999px;" tabindex="-1" aria-hidden="true" autocomplete="current-password" />
+          
+          <input id="discard-password" type="password" class="form-input" placeholder="Ingresá tu contraseña para confirmar" required autocomplete="new-password" readonly onfocus="this.removeAttribute('readonly');" />
         </div>
       </div>
       <div class="modal-confirm-footer">
