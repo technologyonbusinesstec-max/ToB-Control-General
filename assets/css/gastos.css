@@ -666,24 +666,27 @@
 
 .btn-discard:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
 
-/* ── Discard Button (tabla) ──────────────────────────────────── */
-.btn-discard-table {
+/* ── Trash Button (tabla — solo admins) ───────────────────── */
+.btn-trash {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 6px 10px;
+  width: 32px;
+  height: 32px;
   border-radius: var(--radius-sm);
-  border: 1px solid rgba(245, 101, 101, 0.2);
-  background: rgba(245, 101, 101, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  background: transparent;
   cursor: pointer;
   transition: var(--transition);
-  font-size: 14px;
-  color: #f56565;
+  font-size: 15px;
+  color: var(--text-muted);
+  flex-shrink: 0;
 }
 
-.btn-discard-table:hover {
-  background: rgba(245, 101, 101, 0.15);
-  border-color: rgba(245, 101, 101, 0.4);
+.btn-trash:hover {
+  background: rgba(245, 101, 101, 0.12);
+  border-color: rgba(245, 101, 101, 0.3);
+  color: #f56565;
   transform: translateY(-1px);
 }
 
