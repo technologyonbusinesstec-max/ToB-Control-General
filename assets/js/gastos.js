@@ -15,9 +15,14 @@ document.addEventListener('DOMContentLoaded', async () => {
   const kpiDisponible = document.getElementById('kpi-disponible');
   const toast       = document.getElementById('toast');
 
+  // Limpiar search al cargar (fix autofill bug)
+  searchInput.value = '';
+
   // Modals
   const modalNew    = document.getElementById('modal-new-expense');
   const modalReview = document.getElementById('modal-review-expense');
+  const modalConfirmDiscard = document.getElementById('modal-confirm-discard');
+  const modalWhatsApp = document.getElementById('modal-whatsapp');
 
   // Número admin para WhatsApp (Andrey/Abril)
   const ADMIN_WHATSAPP = '50661515240';
@@ -27,6 +32,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   let isAdmin = false;
   let allExpenses = [];
   let currentExpense = null;
+  let pendingWaUrl = null; // URL pendiente para WhatsApp
 
   // ── Sesión ──────────────────────────────────────────────────
   const { data: { session } } = await db.auth.getSession();
@@ -66,15 +72,38 @@ document.addEventListener('DOMContentLoaded', async () => {
   document.getElementById('btn-admin-save').addEventListener('click', updateExpenseStatus);
 
   // ── Event Listeners: Modal Desecho ───────────────────────────
-  const modalConfirmDiscard = document.getElementById('modal-confirm-discard');
-  
   document.getElementById('btn-cancel-discard')?.addEventListener('click', () => closeModal(modalConfirmDiscard));
   document.getElementById('btn-submit-discard')?.addEventListener('click', discardExpense);
   modalConfirmDiscard?.addEventListener('click', e => { if (e.target === modalConfirmDiscard) closeModal(modalConfirmDiscard); });
 
+  // ── Event Listeners: Modal WhatsApp ──────────────────────────
+  document.getElementById('btn-wa-no')?.addEventListener('click', () => {
+    pendingWaUrl = null;
+    closeModal(modalWhatsApp);
+  });
+  document.getElementById('btn-wa-yes')?.addEventListener('click', () => {
+    if (pendingWaUrl) window.open(pendingWaUrl, '_blank');
+    pendingWaUrl = null;
+    closeModal(modalWhatsApp);
+  });
+  modalWhatsApp?.addEventListener('click', e => {
+    if (e.target === modalWhatsApp) {
+      pendingWaUrl = null;
+      closeModal(modalWhatsApp);
+    }
+  });
+
   // ── Helpers: Modals ──────────────────────────────────────────
   function openModal(modal) { modal.classList.add('open'); }
   function closeModal(modal) { modal.classList.remove('open'); }
+
+  // ── Helper: WhatsApp popup ───────────────────────────────────
+  function showWhatsAppPopup(url, description) {
+    pendingWaUrl = url;
+    const descEl = document.getElementById('wa-desc');
+    if (descEl) descEl.textContent = description || '¿Deseás enviar un mensaje al coordinador de finanzas para alertarle sobre esta solicitud?';
+    openModal(modalWhatsApp);
+  }
 
   // ── Helper: Toast ────────────────────────────────────────────
   function showToast(msg, type = 'success') {
@@ -148,20 +177,22 @@ document.addEventListener('DOMContentLoaded', async () => {
         <td style="font-weight:700;">₡${monto}</td>
         <td style="color:var(--text-muted);font-size:12px;">${dateStr}</td>
         <td>
-          <div style="display:flex; gap:6px;">
+          <div style="display:flex; align-items:center; gap:8px;">
             <button class="action-btn" data-id="${g.id}">Ver Detalles →</button>
-            ${isAdmin && g.estado !== 'Desechado' ? `<button class="btn-discard-table" data-discard-id="${g.id}" aria-label="Desechar" title="Desechar Gasto"><span aria-hidden="true">🗑️</span></button>` : ''}
+            ${isAdmin && g.estado !== 'Desechado' ? `<button class="btn-trash" data-discard-id="${g.id}" title="Desechar gasto">🗑</button>` : ''}
           </div>
         </td>
       `;
       tbody.appendChild(tr);
     });
 
+    // Event: Ver Detalles
     document.querySelectorAll('.action-btn').forEach(btn => {
       btn.addEventListener('click', e => openReviewModal(e.currentTarget.dataset.id));
     });
 
-    document.querySelectorAll('.btn-discard-table').forEach(btn => {
+    // Event: Trash buttons
+    document.querySelectorAll('.btn-trash').forEach(btn => {
       btn.addEventListener('click', e => {
         const id = e.currentTarget.dataset.discardId;
         const g = allExpenses.find(x => x.id === id);
@@ -169,7 +200,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         currentExpense = g;
         document.getElementById('discard-code-display').textContent = g.codigo_unico;
         document.getElementById('discard-password').value = '';
-        openModal(document.getElementById('modal-confirm-discard'));
+        openModal(modalConfirmDiscard);
       });
     });
   }
@@ -230,11 +261,10 @@ document.addEventListener('DOMContentLoaded', async () => {
       showToast(`✅ Solicitud ${codigoUnico} registrada exitosamente.`);
       await fetchGastos();
 
-      // WhatsApp a administradores
+      // WhatsApp a administradores — popup bonito
       const text = `Hola, nueva solicitud de gasto registrada en el sistema ToB 2026.\n\n*Código:* ${codigoUnico}\n*Solicitante:* ${newExpense.nombre_completo}\n*Monto:* ₡${newExpense.monto_estimado.toLocaleString('es-CR')}\n*Categoría:* ${newExpense.categoria}`;
-      if (confirm('¿Deseas notificar a Finanzas (Andrey/Abril) por WhatsApp?')) {
-        window.open(`https://wa.me/${ADMIN_WHATSAPP}?text=${encodeURIComponent(text)}`, '_blank');
-      }
+      const waUrl = `https://wa.me/${ADMIN_WHATSAPP}?text=${encodeURIComponent(text)}`;
+      showWhatsAppPopup(waUrl, `¿Deseás enviar un mensaje al coordinador de finanzas para alertarle que acabás de registrar la solicitud ${codigoUnico}?`);
 
     } catch (err) {
       console.error(err);
@@ -330,13 +360,14 @@ document.addEventListener('DOMContentLoaded', async () => {
       showToast(`Estado actualizado a: ${nuevoEstado}`);
       await fetchGastos();
 
-      // WhatsApp al coordinador si aplica
+      // WhatsApp al coordinador si aplica — popup bonito
       if (['Aprobado','Rechazado'].includes(nuevoEstado)) {
         let phone = (currentExpense.telefono || '').replace(/\D/g, '');
         if (phone.length === 8) phone = '506' + phone;
         const text = `Hola ${currentExpense.nombre_completo}, tu solicitud *${currentExpense.codigo_unico}* fue *${nuevoEstado}* por Finanzas ToB 2026.`;
-        if (phone && confirm(`¿Notificar a ${currentExpense.nombre_completo} por WhatsApp?`)) {
-          window.open(`https://wa.me/${phone}?text=${encodeURIComponent(text)}`, '_blank');
+        if (phone) {
+          const waUrl = `https://wa.me/${phone}?text=${encodeURIComponent(text)}`;
+          showWhatsAppPopup(waUrl, `¿Deseás notificar a ${currentExpense.nombre_completo} por WhatsApp que su solicitud fue ${nuevoEstado}?`);
         }
       }
 
@@ -376,7 +407,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
       if (error) throw error;
 
-      closeModal(document.getElementById('modal-confirm-discard'));
+      closeModal(modalConfirmDiscard);
       showToast(`Gasto ${currentExpense.codigo_unico} desechado.`);
       await fetchGastos();
       
