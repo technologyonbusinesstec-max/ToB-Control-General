@@ -68,12 +68,6 @@ document.addEventListener('DOMContentLoaded', async () => {
   // ── Event Listeners: Modal Desecho ───────────────────────────
   const modalConfirmDiscard = document.getElementById('modal-confirm-discard');
   
-  document.getElementById('btn-discard-expense')?.addEventListener('click', () => {
-    if (!currentExpense) return;
-    document.getElementById('discard-code-display').textContent = currentExpense.codigo_unico;
-    openModal(modalConfirmDiscard);
-  });
-  
   document.getElementById('btn-cancel-discard')?.addEventListener('click', () => closeModal(modalConfirmDiscard));
   document.getElementById('btn-submit-discard')?.addEventListener('click', discardExpense);
   modalConfirmDiscard?.addEventListener('click', e => { if (e.target === modalConfirmDiscard) closeModal(modalConfirmDiscard); });
@@ -154,7 +148,10 @@ document.addEventListener('DOMContentLoaded', async () => {
         <td style="font-weight:700;">₡${monto}</td>
         <td style="color:var(--text-muted);font-size:12px;">${dateStr}</td>
         <td>
-          <button class="action-btn" data-id="${g.id}">Ver Detalles →</button>
+          <div style="display:flex; gap:6px;">
+            <button class="action-btn" data-id="${g.id}">Ver Detalles →</button>
+            ${isAdmin && g.estado !== 'Desechado' ? `<button class="btn-discard-table" data-discard-id="${g.id}" aria-label="Desechar" title="Desechar Gasto"><span aria-hidden="true">🗑️</span></button>` : ''}
+          </div>
         </td>
       `;
       tbody.appendChild(tr);
@@ -162,6 +159,18 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     document.querySelectorAll('.action-btn').forEach(btn => {
       btn.addEventListener('click', e => openReviewModal(e.currentTarget.dataset.id));
+    });
+
+    document.querySelectorAll('.btn-discard-table').forEach(btn => {
+      btn.addEventListener('click', e => {
+        const id = e.currentTarget.dataset.discardId;
+        const g = allExpenses.find(x => x.id === id);
+        if (!g) return;
+        currentExpense = g;
+        document.getElementById('discard-code-display').textContent = g.codigo_unico;
+        document.getElementById('discard-password').value = '';
+        openModal(document.getElementById('modal-confirm-discard'));
+      });
     });
   }
 
@@ -344,6 +353,13 @@ document.addEventListener('DOMContentLoaded', async () => {
   async function discardExpense() {
     if (!currentExpense || !isAdmin) return;
 
+    const pwdInput = document.getElementById('discard-password').value;
+    const realPwd = sessionStorage.getItem('tob_user_password');
+    if (!pwdInput || pwdInput !== realPwd) {
+      showToast('Contraseña incorrecta. Inténtalo de nuevo.', 'error');
+      return;
+    }
+
     const btn = document.getElementById('btn-submit-discard');
     const spinner = document.getElementById('spinner-discard');
     btn.disabled = true;
@@ -361,7 +377,6 @@ document.addEventListener('DOMContentLoaded', async () => {
       if (error) throw error;
 
       closeModal(document.getElementById('modal-confirm-discard'));
-      closeModal(modalReview);
       showToast(`Gasto ${currentExpense.codigo_unico} desechado.`);
       await fetchGastos();
       
