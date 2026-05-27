@@ -92,6 +92,7 @@
           <option value="En proceso">En proceso</option>
           <option value="Completado">Completado</option>
           <option value="Rechazado">Rechazado</option>
+          <option value="Desechado">Desechado</option>
         </select>
       </div>
 
@@ -319,6 +320,12 @@
                 <span id="spinner-admin" style="display:none;" class="loading-spinner"></span>
                 Guardar Cambios
               </button>
+              
+              <div style="margin-top: 16px; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 16px;">
+                <button class="btn-discard" id="btn-discard-expense">
+                  <span aria-hidden="true">🗑️</span> Desechar Solicitud
+                </button>
+              </div>
             </div>
 
             <!-- Panel Cierre -->
@@ -342,6 +349,29 @@
         </div>
       </div>
 
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════
+       MODAL 3 — Confirmar Desecho
+  ═══════════════════════════════════════════════════════════ -->
+  <div class="modal-overlay" id="modal-confirm-discard" role="dialog" aria-modal="true" aria-labelledby="discard-title">
+    <div class="modal-panel" style="max-width: 420px;">
+      <div class="modal-confirm-body">
+        <div class="modal-confirm-icon">🗑️</div>
+        <div class="modal-confirm-title" id="discard-title">¿Desechar Gasto?</div>
+        <p class="modal-confirm-desc">
+          Esta acción marcará el gasto como desechado en lugar de eliminarlo para conservar el historial.
+        </p>
+        <div class="modal-confirm-code" id="discard-code-display">TOB-GASTO-000</div>
+      </div>
+      <div class="modal-confirm-footer">
+        <button class="btn-cancel" id="btn-cancel-discard">Cancelar</button>
+        <button class="btn-discard-confirm" id="btn-submit-discard">
+          <span id="spinner-discard" style="display:none;" class="loading-spinner" style="border-top-color:#fff;"></span>
+          Sí, desechar
+        </button>
+      </div>
     </div>
   </div>
 
