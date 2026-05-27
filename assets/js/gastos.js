@@ -387,9 +387,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (!currentExpense || !isAdmin) return;
 
     const pwdInput = document.getElementById('discard-password').value;
-    const realPwd = sessionStorage.getItem('tob_user_password');
-    if (!pwdInput || pwdInput !== realPwd) {
-      showToast('Contraseña incorrecta. Inténtalo de nuevo.', 'error');
+    if (!pwdInput) {
+      showToast('Por favor ingresa tu contraseña.', 'error');
       return;
     }
 
@@ -399,6 +398,23 @@ document.addEventListener('DOMContentLoaded', async () => {
     spinner.style.display = 'inline-block';
 
     try {
+      // 1. Verificar contraseña real contra la base de datos (Supabase Auth)
+      const { data: authData, error: authError } = await db.auth.signInWithPassword({
+        email: currentUser.email,
+        password: pwdInput
+      });
+
+      if (authError) {
+        showToast('Contraseña incorrecta. Inténtalo de nuevo.', 'error');
+        btn.disabled = false;
+        spinner.style.display = 'none';
+        return;
+      }
+
+      // Guardamos la contraseña en sesión temporal por si quiere verla en "Perfil"
+      sessionStorage.setItem('tob_user_password', pwdInput);
+
+      // 2. Si la contraseña es correcta, desechar el gasto
       const { error } = await db.from('gastos')
         .update({
           estado: 'Desechado',
