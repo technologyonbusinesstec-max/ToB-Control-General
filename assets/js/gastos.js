@@ -199,7 +199,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (!g) return;
         currentExpense = g;
         document.getElementById('discard-code-display').textContent = g.codigo_unico;
-        document.getElementById('discard-password').value = '';
+        const pwdInput = document.getElementById('discard-password');
+        pwdInput.value = '';
+        pwdInput.setAttribute('readonly', 'readonly');
         openModal(modalConfirmDiscard);
       });
     });
