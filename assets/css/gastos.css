@@ -255,6 +255,7 @@
 .status-pill.completado { background: rgba(56,161,105,0.15);  color: #38a169; }
 .status-pill.rechazado  { background: rgba(245,101,101,0.15); color: #f56565; }
 .status-pill.cancelado  { background: rgba(160,160,160,0.15); color: #a0aec0; }
+.status-pill.desechado  { background: rgba(113,128,150,0.12);  color: #718096; text-decoration: line-through; opacity: 0.75; }
 
 /* ── Código Badge ─────────────────────────────────────────────── */
 .cell-codigo {
@@ -638,6 +639,147 @@
 
 .btn-success:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(56,161,105,0.45); }
 .btn-success:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+/* ── Discard Button (solo admins) ────────────────────────────── */
+.btn-discard {
+  padding: 10px 16px;
+  background: rgba(245, 101, 101, 0.08);
+  border: 1px solid rgba(245, 101, 101, 0.25);
+  border-radius: var(--radius-sm);
+  color: #f56565;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: var(--transition);
+  width: 100%;
+}
+
+.btn-discard:hover {
+  background: rgba(245, 101, 101, 0.18);
+  border-color: rgba(245, 101, 101, 0.5);
+  transform: translateY(-1px);
+}
+
+.btn-discard:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+
+/* ── Discard Button (tabla) ──────────────────────────────────── */
+.btn-discard-table {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 10px;
+  border-radius: var(--radius-sm);
+  border: 1px solid rgba(245, 101, 101, 0.2);
+  background: rgba(245, 101, 101, 0.05);
+  cursor: pointer;
+  transition: var(--transition);
+  font-size: 14px;
+  color: #f56565;
+}
+
+.btn-discard-table:hover {
+  background: rgba(245, 101, 101, 0.15);
+  border-color: rgba(245, 101, 101, 0.4);
+  transform: translateY(-1px);
+}
+
+/* ── Row desechado (tabla) ───────────────────────────────────── */
+.gastos-table tbody tr.row-desechado {
+  opacity: 0.45;
+}
+
+.gastos-table tbody tr.row-desechado td {
+  text-decoration: line-through;
+  color: var(--text-muted);
+}
+
+.gastos-table tbody tr.row-desechado .cell-codigo,
+.gastos-table tbody tr.row-desechado .status-pill {
+  text-decoration: none;
+}
+
+/* ── Modal de Confirmación de Desecho ────────────────────────── */
+.modal-confirm-body {
+  padding: 28px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+.modal-confirm-icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: rgba(245, 101, 101, 0.12);
+  border: 1px solid rgba(245, 101, 101, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+}
+
+.modal-confirm-title {
+  font-family: 'Outfit', sans-serif;
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.modal-confirm-desc {
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.6;
+  max-width: 340px;
+  margin: 0;
+}
+
+.modal-confirm-code {
+  font-family: 'Outfit', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  color: #f56565;
+  background: rgba(245, 101, 101, 0.08);
+  border: 1px solid rgba(245, 101, 101, 0.2);
+  padding: 6px 14px;
+  border-radius: 99px;
+}
+
+.modal-confirm-footer {
+  display: flex;
+  gap: 12px;
+  width: 100%;
+  padding: 0 28px 24px;
+}
+
+.modal-confirm-footer .btn-cancel { flex: 1; justify-content: center; }
+.modal-confirm-footer .btn-discard-confirm { flex: 1; }
+
+.btn-discard-confirm {
+  flex: 1;
+  padding: 10px 20px;
+  background: linear-gradient(135deg, #742a2a, #e53e3e);
+  border: none;
+  border-radius: var(--radius-sm);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: var(--transition);
+  box-shadow: 0 4px 14px rgba(229, 62, 62, 0.3);
+}
+
+.btn-discard-confirm:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(229,62,62,0.45); }
+.btn-discard-confirm:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
 
 .btn-drive {
   padding: 10px 16px;
