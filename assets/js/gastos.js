@@ -65,6 +65,19 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   document.getElementById('btn-admin-save').addEventListener('click', updateExpenseStatus);
 
+  // ── Event Listeners: Modal Desecho ───────────────────────────
+  const modalConfirmDiscard = document.getElementById('modal-confirm-discard');
+  
+  document.getElementById('btn-discard-expense')?.addEventListener('click', () => {
+    if (!currentExpense) return;
+    document.getElementById('discard-code-display').textContent = currentExpense.codigo_unico;
+    openModal(modalConfirmDiscard);
+  });
+  
+  document.getElementById('btn-cancel-discard')?.addEventListener('click', () => closeModal(modalConfirmDiscard));
+  document.getElementById('btn-submit-discard')?.addEventListener('click', discardExpense);
+  modalConfirmDiscard?.addEventListener('click', e => { if (e.target === modalConfirmDiscard) closeModal(modalConfirmDiscard); });
+
   // ── Helpers: Modals ──────────────────────────────────────────
   function openModal(modal) { modal.classList.add('open'); }
   function closeModal(modal) { modal.classList.remove('open'); }
@@ -112,7 +125,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         (g.nombre_completo|| '').toLowerCase().includes(search) ||
         (g.categoria      || '').toLowerCase().includes(search) ||
         (g.titulo         || '').toLowerCase().includes(search);
-      const matchStatus = status === 'todos' || g.estado === status;
+      const matchStatus = status === 'todos' ? g.estado !== 'Desechado' : g.estado === status;
       return matchSearch && matchStatus;
     });
 
@@ -128,6 +141,8 @@ document.addEventListener('DOMContentLoaded', async () => {
       const monto = Number(g.monto_estimado).toLocaleString('es-CR');
 
       const tr = document.createElement('tr');
+      if (g.estado === 'Desechado') tr.className = 'row-desechado';
+      
       tr.innerHTML = `
         <td><span class="status-pill ${stateClass}">${g.estado}</span></td>
         <td><span class="cell-codigo">${g.codigo_unico}</span></td>
@@ -152,7 +167,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   // ── Estadísticas ─────────────────────────────────────────────
   function updateStats() {
-    document.getElementById('stat-total').textContent       = allExpenses.length;
+    document.getElementById('stat-total').textContent       = allExpenses.filter(g => g.estado !== 'Desechado').length;
     document.getElementById('stat-aprobados').textContent   = allExpenses.filter(g => g.estado === 'Aprobado').length;
     document.getElementById('stat-pendientes').textContent  = allExpenses.filter(g => g.estado === 'Pendiente').length;
     document.getElementById('stat-completados').textContent = allExpenses.filter(g => g.estado === 'Completado').length;
@@ -319,6 +334,40 @@ document.addEventListener('DOMContentLoaded', async () => {
     } catch (err) {
       console.error(err);
       showToast('Error al actualizar el estado.', 'error');
+    } finally {
+      btn.disabled = false;
+      spinner.style.display = 'none';
+    }
+  }
+
+  // ── Admin: Desechar Gasto ─────────────────────────────────────
+  async function discardExpense() {
+    if (!currentExpense || !isAdmin) return;
+
+    const btn = document.getElementById('btn-submit-discard');
+    const spinner = document.getElementById('spinner-discard');
+    btn.disabled = true;
+    spinner.style.display = 'inline-block';
+
+    try {
+      const { error } = await db.from('gastos')
+        .update({
+          estado: 'Desechado',
+          aprobado_por: currentUser.id,
+          fecha_aprobacion: new Date().toISOString()
+        })
+        .eq('id', currentExpense.id);
+
+      if (error) throw error;
+
+      closeModal(document.getElementById('modal-confirm-discard'));
+      closeModal(modalReview);
+      showToast(`Gasto ${currentExpense.codigo_unico} desechado.`);
+      await fetchGastos();
+      
+    } catch (err) {
+      console.error(err);
+      showToast('Error al desechar el gasto.', 'error');
     } finally {
       btn.disabled = false;
       spinner.style.display = 'none';
