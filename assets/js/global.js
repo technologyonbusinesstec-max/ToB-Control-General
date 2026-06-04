@@ -8,15 +8,7 @@
 const EVENT_DATE = new Date('2026-08-18T00:00:00');
 
 // ── Google Sheets Config ─────────────────────────────────────
-// ⚠️ Para que funcione, compartí el sheet como
-//    "Cualquier persona con el enlace puede VER"
-// ⚠️ Cambiá las celdas a las que tienen los totales en tu presupuesto
-const SHEETS_CONFIG = {
-  sheetId:        '10qutSMURWYvXZCP4EFKkzsFcCA4_VZ9K',
-  sheetName:      '',       // nombre exacto de la hoja, vacío = primera hoja
-  gastosCell:     'B5',     // ← CAMBIÁ: celda con GASTOS TOTALES
-  disponibleCell: 'B6',     // ← CAMBIÁ: celda con DINERO DISPONIBLE
-};
+const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQcsR6tfI-W0Ur-YbjHMKvdkFqK_mJc103N6zjMgwzE0PJYj6-3jlVJjkeP8hcRqKeTcBqwaQj1PdPg/pub?gid=1783383453&single=true&output=csv';
 
 // ── Countdown ─────────────────────────────────────────────────
 function getDiasRestantes() {
@@ -31,29 +23,21 @@ function formatMoney(amount) {
 }
 
 // ── Google Sheets Fetch ───────────────────────────────────────
-async function fetchSheetCell(cell) {
-  const { sheetId, sheetName } = SHEETS_CONFIG;
-  let url = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:json&range=${cell}`;
-  if (sheetName) url += `&sheet=${encodeURIComponent(sheetName)}`;
-  const res  = await fetch(url);
-  const text = await res.text();
-  const match = text.match(/google\.visualization\.Query\.setResponse\(([\s\S]*)\);/);
-  if (!match) return null;
-  const json = JSON.parse(match[1]);
-  return json?.table?.rows?.[0]?.c?.[0]?.v ?? null;
-}
-
-async function fetchSheetsKPIs() {
+async function fetchPresupuestoCSV() {
   try {
-    const [gastos, disponible] = await Promise.all([
-      fetchSheetCell(SHEETS_CONFIG.gastosCell),
-      fetchSheetCell(SHEETS_CONFIG.disponibleCell),
-    ]);
-    return { gastos, disponible };
+    const res = await fetch(CSV_URL);
+    const text = await res.text();
+    const lines = text.trim().split('\n');
+    if (lines.length > 0) {
+      const cols = lines[0].split(',');
+      if (cols.length > 1) {
+        return parseFloat(cols[cols.length - 1].replace(/[^\d.-]/g, ''));
+      }
+    }
   } catch (e) {
-    console.warn('[KPI] Google Sheets fetch failed:', e.message);
-    return { gastos: null, disponible: null };
+    console.warn('[KPI] CSV fetch failed:', e.message);
   }
+  return null;
 }
 
 // ── Supabase KPIs ─────────────────────────────────────────────
@@ -61,15 +45,23 @@ async function fetchSupabaseKPIs() {
   const db = window._supabaseClient;
   if (!db) return { patrocinando: 0, totalPatros: 0, totalConfs: 0 };
   try {
-    const [patrosRes, confsRes] = await Promise.all([
+    const [patrosRes, confsRes, gastosRes] = await Promise.all([
       db.from('patrocinadores').select('estado'),
       db.from('conferencistas').select('id_conferencista', { count: 'exact', head: true }),
+      db.from('gastos').select('monto_estimado, monto_final, estado')
     ]);
     const patros = patrosRes.data || [];
+    const gastos = gastosRes.data || [];
+
+    const totalGastos = gastos
+      .filter(g => ['Aprobado','En proceso','Completado'].includes(g.estado))
+      .reduce((s, g) => s + Number(g.monto_final || g.monto_estimado), 0);
+
     return {
       patrocinando: patros.filter(p => p.estado === 'patrocina').length,
       totalPatros:  patros.length,
       totalConfs:   confsRes.count || 0,
+      totalGastos:  totalGastos
     };
   } catch (e) {
     console.warn('[KPI] Supabase fetch failed:', e.message);
@@ -124,14 +116,17 @@ async function renderKPIBar() {
   const elDias = document.getElementById('kpi-dias');
   if (elDias) elDias.textContent = `${getDiasRestantes()} días`;
 
-  const [sheets, supa] = await Promise.all([
-    fetchSheetsKPIs(),
+  const [excelTotal, supa] = await Promise.all([
+    fetchPresupuestoCSV(),
     fetchSupabaseKPIs(),
   ]);
 
+  const gastos = supa.totalGastos;
+  const disponible = excelTotal !== null ? excelTotal - gastos : null;
+
   updateKPIValues({
-    gastos:       sheets.gastos,
-    disponible:   sheets.disponible,
+    gastos:       gastos,
+    disponible:   disponible,
     patrocinando: supa.patrocinando,
     totalPatros:  supa.totalPatros,
     totalConfs:   supa.totalConfs,
