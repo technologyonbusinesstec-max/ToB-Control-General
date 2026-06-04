@@ -134,7 +134,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     allExpenses = data || [];
     renderTable();
     updateStats();
-    calculateKPIs();
+    if (window.refreshKPIBar) window.refreshKPIBar();
   }
 
   // ── Render Tabla ─────────────────────────────────────────────
@@ -215,15 +215,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     document.getElementById('stat-completados').textContent = allExpenses.filter(g => g.estado === 'Completado').length;
   }
 
-  function calculateKPIs() {
-    const totalAprobado = allExpenses
-      .filter(g => ['Aprobado','En proceso','Completado'].includes(g.estado))
-      .reduce((s, g) => s + Number(g.monto_final || g.monto_estimado), 0);
 
-    kpiGastos.textContent = `₡${totalAprobado.toLocaleString('es-CR')}`;
-    // kpiDisponible: por definir cuando se establezca el presupuesto total
-    if (kpiDisponible) kpiDisponible.closest('.kpi-item').style.display = 'none';
-  }
 
   // ── Generar Código Único ─────────────────────────────────────
   function generateCode() {
